@@ -12,6 +12,7 @@
 #include "Buffer.hpp"
 #include "VertexArray.hpp"
 #include "VertexBufferLayout.hpp"
+#include "Cube.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -46,17 +47,9 @@ int main()
 
     Shader shader("../res/vertexShader.glsl", "../res/fragmentShader.glsl");
 
-    GLfloat vertices[] = {
-        -0.5f, -0.5f, 0.0f, // bottom left
-         0.5f, -0.5f, 0.0f, // bottom right
-         0.0f,  0.5f, 0.0f  // top middle
-    };
+    Cube cube;
 
-    GLuint indices[] = {
-        0, 1, 2
-    };
-
-    VertexBuffer vertexBuffer(vertices, 3 * 3 * sizeof(float));
+    VertexBuffer vertexBuffer(cube.vertices, cube.verticesSize);
 
     VertexBufferLayout layout;
     layout.push(GL_FLOAT, 3);
@@ -64,7 +57,7 @@ int main()
     VertexArray vertexArray;
     vertexArray.addBuffer(vertexBuffer, layout);
 
-    IndexBuffer indexBuffer(indices, 3);
+    IndexBuffer indexBuffer(cube.indices, cube.indicesCount);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -74,7 +67,7 @@ int main()
         shader.bind();
         vertexArray.bind();
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLES, 0, cube.verticesSize/sizeof(float));
 
         glfwSwapBuffers(window);
         glfwPollEvents();
