@@ -9,6 +9,9 @@
 #include <iostream>
 
 #include "Shader.hpp"
+#include "Buffer.hpp"
+#include "VertexArray.hpp"
+#include "VertexBufferLayout.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -43,26 +46,25 @@ int main()
 
     Shader shader("../res/vertexShader.glsl", "../res/fragmentShader.glsl");
 
-    float vertices[] = {
-    -0.5f, -0.5f, 0.0f,
-    0.5f, -0.5f, 0.0f,
-    0.0f, 0.5f, 0.0f
+    GLfloat vertices[] = {
+        -0.5f, -0.5f, 0.0f, // bottom left
+         0.5f, -0.5f, 0.0f, // bottom right
+         0.0f,  0.5f, 0.0f  // top middle
     };
 
-    unsigned int VBO, VAO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
+    GLuint indices[] = {
+        0, 1, 2
+    };
 
-    glBindVertexArray(VAO);
+    VertexBuffer vertexBuffer(vertices, 3 * 3 * sizeof(float));
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    VertexBufferLayout layout;
+    layout.push(GL_FLOAT, 3);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    VertexArray vertexArray;
+    vertexArray.addBuffer(vertexBuffer, layout);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    IndexBuffer indexBuffer(indices, 3);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -70,15 +72,13 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         shader.bind();
-        glBindVertexArray(VAO);
+        vertexArray.bind();
+
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
 
     glfwTerminate();
     return 0;
