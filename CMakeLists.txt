@@ -4,9 +4,7 @@ project(Raytracer)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-
-set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/external)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
 # Use FetchContent to download GLAD library
 include(FetchContent)
@@ -89,8 +87,7 @@ target_include_directories(Raytracer
     PRIVATE ${glad_SOURCE_DIR}/include
     PRIVATE ${glfw_SOURCE_DIR}/include
     PRIVATE ${glm_SOURCE_DIR}
-    PRIVATE ${stb_SOURCE_DIR}
-    PRIVATE ${EXTERNAL_DIR})
+    PRIVATE ${stb_SOURCE_DIR})
 
 add_dependencies(Raytracer 
     glad
