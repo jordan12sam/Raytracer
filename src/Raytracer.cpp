@@ -59,6 +59,10 @@ int main()
 
     IndexBuffer indexBuffer(cube.indices, cube.indicesCount);
 
+    vertexBuffer.unbind();
+    indexBuffer.unbind();
+    vertexArray.unbind();
+
     while (!glfwWindowShouldClose(window))
     {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
