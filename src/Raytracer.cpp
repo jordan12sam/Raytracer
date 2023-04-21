@@ -9,6 +9,7 @@
 #include "Window.hpp"
 #include "Camera.hpp"
 #include "Shader.hpp"
+#include "Renderer.hpp"
 #include "Buffer.hpp"
 #include "VertexArray.hpp"
 #include "VertexBufferLayout.hpp"
@@ -43,6 +44,8 @@ int main()
     indexBuffer.unbind();
     vertexArray.unbind();
 
+    Renderer renderer;
+
     while (window.isOpen())
     {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -59,12 +62,9 @@ int main()
         glm::mat4 view = camera.getViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(80.0f), AR, 0.1f, 100.0f);
         glm::mat4 mvp = projection * view * model;
-
-        shader.bind();
         shader.setMat4("uMVP", mvp);
-        vertexArray.bind();
 
-        glDrawArrays(GL_TRIANGLES, 0, cube.verticesSize/sizeof(float));
+        renderer.draw(vertexArray, indexBuffer, shader);
     }
 
     return 0;
