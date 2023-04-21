@@ -15,6 +15,8 @@
 #include "VertexBufferLayout.hpp"
 #include "Cube.hpp"
 
+#include <vector>
+
 // define screen size
 const unsigned int SCR_WIDTH = 1600;
 const unsigned int SCR_HEIGHT = 900;
@@ -30,22 +32,46 @@ int main()
 
     Cube cube;
 
-    VertexBuffer vertexBuffer(cube.vertices, cube.verticesSize);
+    std::vector<float> vertices;
+    std::vector<int> indices;
+
+    Renderer renderer;
+
+    for (int i = 0; i < 120; i += 5) {
+        glm::mat4 transform = glm::mat4(1.0f);
+        transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, 0.0f));
+
+        glm::vec4 position(cube.vertices[i], cube.vertices[i + 1], cube.vertices[i + 2], 1.0f);
+        glm::vec2 texture(cube.vertices[i + 3], cube.vertices[i + 4]);
+
+        position = transform * position;
+
+        vertices.push_back(position.x);
+        vertices.push_back(position.y);
+        vertices.push_back(position.z);
+        vertices.push_back(texture.x);
+        vertices.push_back(texture.y);
+    }
+
+    for (int i = 0; i < 36; i++)
+    {
+        indices.push_back(cube.indices[i]);
+    }
+
+    std::cout << indices.size() << " " << vertices.size() << std::endl;
 
     VertexBufferLayout layout;
     layout.push(GL_FLOAT, 3);
     layout.push(GL_FLOAT, 2);
 
+    VertexBuffer vertexBuffer(vertices, vertices.size() * sizeof(GLfloat));
     VertexArray vertexArray;
     vertexArray.addBuffer(vertexBuffer, layout);
-
-    IndexBuffer indexBuffer(cube.indices, cube.indicesCount);
+    IndexBuffer indexBuffer(indices, indices.size());
 
     vertexBuffer.unbind();
     indexBuffer.unbind();
     vertexArray.unbind();
-
-    Renderer renderer;
 
     glEnable(GL_DEPTH_TEST);
 

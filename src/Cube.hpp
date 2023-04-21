@@ -66,5 +66,7 @@ struct Cube
     };
 
     int verticesSize = sizeof(vertices);
-    int indicesCount = sizeof(indices)/sizeof(GLuint);
+    int verticesCount = sizeof(vertices)/sizeof(vertices[0]);
+    int indicesSize = sizeof(indices);
+    int indicesCount = sizeof(indices)/sizeof(indices[0]);
 };
