@@ -1,41 +1,42 @@
 struct Cube
 {
-    GLfloat vertices[72] = {
+    GLfloat vertices[120] = {
+                            //Positions             //Texture
         // front face
-        -0.5f, -0.5f,  0.5f, // bottom left
-        0.5f, -0.5f,  0.5f, // bottom right
-        0.5f,  0.5f,  0.5f, // top right
-        -0.5f,  0.5f,  0.5f, // top left
+        /* bottom left */   -0.5f, -0.5f,  0.5f,    0.0f, 0.0f,
+        /* bottom right */  0.5f, -0.5f,  0.5f,     1.0f, 0.0f, 
+        /* top right */     0.5f,  0.5f,  0.5f,     1.0f, 1.0f,
+        /* top left */      -0.5f,  0.5f,  0.5f,    0.0f, 1.0f,
 
         // back face
-        -0.5f, -0.5f, -0.5f, // bottom left
-        0.5f, -0.5f, -0.5f, // bottom right
-        0.5f,  0.5f, -0.5f, // top right
-        -0.5f,  0.5f, -0.5f, // top left
+        /* bottom left */   -0.5f, -0.5f, -0.5f,    0.0f, 0.0f,
+        /* bottom right */  0.5f, -0.5f, -0.5f,     1.0f, 0.0f,
+        /* top right */     0.5f,  0.5f, -0.5f,     1.0f, 1.0f,
+        /* top left */      -0.5f,  0.5f, -0.5f,    0.0f, 1.0f,
 
         // right face
-        0.5f, -0.5f,  0.5f, // bottom front
-        0.5f, -0.5f, -0.5f, // bottom back
-        0.5f,  0.5f, -0.5f, // top back
-        0.5f,  0.5f,  0.5f, // top front
+        /*bottom front*/    0.5f, -0.5f,  0.5f,     0.0f, 0.0f,
+        /*bottom back*/     0.5f, -0.5f, -0.5f,     1.0f, 0.0f,
+        /*top back*/        0.5f,  0.5f, -0.5f,     1.0f, 1.0f,
+        /*top front*/       0.5f,  0.5f,  0.5f,     0.0f, 1.0f,
 
         // left face
-        -0.5f, -0.5f,  0.5f, // bottom front
-        -0.5f, -0.5f, -0.5f, // bottom back
-        -0.5f,  0.5f, -0.5f, // top back
-        -0.5f,  0.5f,  0.5f, // top front
+        /*bottom front*/    -0.5f, -0.5f,  0.5f,    0.0f, 0.0f,
+        /*bottom back*/     -0.5f, -0.5f, -0.5f,    1.0f, 0.0f,
+        /*top back*/        -0.5f,  0.5f, -0.5f,    1.0f, 1.0f,
+        /*top front*/       -0.5f,  0.5f,  0.5f,    0.0f, 1.0f,
 
         // top face
-        -0.5f,  0.5f,  0.5f, // front left
-        0.5f,  0.5f,  0.5f, // front right
-        0.5f,  0.5f, -0.5f, // back right
-        -0.5f,  0.5f, -0.5f, // back left
+        /*front left*/      -0.5f,  0.5f,  0.5f,    0.0f, 0.0f,
+        /*front right*/     0.5f,  0.5f,  0.5f,     1.0f, 0.0f,
+        /*back right*/      0.5f,  0.5f, -0.5f,     1.0f, 1.0f,
+        /*back left*/       -0.5f,  0.5f, -0.5f,    0.0f, 1.0f,
 
         // bottom face
-        -0.5f, -0.5f,  0.5f, // front left
-        0.5f, -0.5f,  0.5f, // front right
-        0.5f, -0.5f, -0.5f, // back right
-        -0.5f, -0.5f, -0.5f  // back left
+        /*front left*/      -0.5f, -0.5f,  0.5f,    0.0f, 0.0f,
+        /*front right*/     0.5f, -0.5f,  0.5f,     1.0f, 0.0f,
+        /*back right*/      0.5f, -0.5f, -0.5f,     1.0f, 1.0f,
+        /*back left*/       -0.5f, -0.5f, -0.5f,    0.0f, 1.0f
     };
 
     GLuint indices[36] = {
@@ -64,6 +65,6 @@ struct Cube
         22, 23, 20
     };
 
-    int verticesSize = 72 * sizeof(float);
-    int indicesCount = 36;
+    int verticesSize = sizeof(vertices);
+    int indicesCount = sizeof(indices)/sizeof(GLuint);
 };

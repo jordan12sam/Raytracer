@@ -42,6 +42,7 @@ bool Window::isOpen() {
     glfwSwapBuffers(m_window);
     glfwPollEvents();
     glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT);
 
     return !glfwWindowShouldClose(m_window);
 }

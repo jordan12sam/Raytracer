@@ -34,6 +34,7 @@ int main()
 
     VertexBufferLayout layout;
     layout.push(GL_FLOAT, 3);
+    layout.push(GL_FLOAT, 2);
 
     VertexArray vertexArray;
     vertexArray.addBuffer(vertexBuffer, layout);
@@ -45,6 +46,8 @@ int main()
     vertexArray.unbind();
 
     Renderer renderer;
+
+    glEnable(GL_DEPTH_TEST);
 
     while (window.isOpen())
     {
