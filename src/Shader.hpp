@@ -7,6 +7,8 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <filesystem>
+#include <unistd.h>
 
 class Shader
 {
