@@ -36,17 +36,17 @@ void Camera::updateVectors()
 
 void Camera::processKeyboardInput(float deltaTime) {
     float velocity = deltaTime * 5.0f;
-    if (glfwGetKey(glfwGetCurrentContext(), 87) == GLFW_PRESS)
+    if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_W) == GLFW_PRESS)
         m_position += m_front * velocity;
-    if (glfwGetKey(glfwGetCurrentContext(), 83) == GLFW_PRESS)
+    if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_S) == GLFW_PRESS)
         m_position -= m_front * velocity;
-    if (glfwGetKey(glfwGetCurrentContext(), 65) == GLFW_PRESS)
+    if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_A) == GLFW_PRESS)
         m_position -= m_right * velocity;
-    if (glfwGetKey(glfwGetCurrentContext(), 68) == GLFW_PRESS)
+    if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_D) == GLFW_PRESS)
         m_position += m_right * velocity;
-    if (glfwGetKey(glfwGetCurrentContext(), 340) == GLFW_PRESS)
+    if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         m_position += m_up * velocity;
-    if (glfwGetKey(glfwGetCurrentContext(), 341) == GLFW_PRESS)
+    if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         m_position -= m_up * velocity;
 }
 
