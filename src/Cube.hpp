@@ -77,21 +77,31 @@ class Cube {
         int indicesSize = sizeof(indices);
         int indicesCount = sizeof(indices)/sizeof(indices[0]);
 
-        void spawn( std::vector<float> &sceneVertices, std::vector<int> &sceneIndices, glm::vec3 position){
-            for (int i = 0; i < verticesCount; i += 5) {
-                glm::mat4 transform = glm::mat4(1.0f);
-                transform = glm::translate(transform, position);
+        void spawn( std::vector<float> &sceneVertices, std::vector<int> &sceneIndices, glm::vec3 position, glm::vec3 scale, glm::vec4 colour){
 
-                glm::vec4 position(vertices[i], vertices[i + 1], vertices[i + 2], 1.0f);
+            glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), scale);
+            glm::mat4 translateMat = glm::translate(glm::mat4(1.0f), position);
+
+            std::cout << position.x << position.y << position.z << std::endl;
+            
+            for (int i = 0; i < verticesCount; i += 5) {
+
+                glm::vec4 coordinates(vertices[i], vertices[i + 1], vertices[i + 2], 1.0f);
                 glm::vec2 texture(vertices[i + 3], vertices[i + 4]);
 
-                position = transform * position;
+                coordinates = translateMat * scaleMat * coordinates;
 
-                sceneVertices.push_back(position.x);
-                sceneVertices.push_back(position.y);
-                sceneVertices.push_back(position.z);
+                sceneVertices.push_back(coordinates.x);
+                sceneVertices.push_back(coordinates.y);
+                sceneVertices.push_back(coordinates.z);
+
                 sceneVertices.push_back(texture.x);
                 sceneVertices.push_back(texture.y);
+
+                sceneVertices.push_back(colour.x);
+                sceneVertices.push_back(colour.y);
+                sceneVertices.push_back(colour.z);
+                sceneVertices.push_back(colour.w);
             }
 
             int cubeNum = sceneIndices.size() / indicesCount;
