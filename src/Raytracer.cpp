@@ -37,26 +37,9 @@ int main()
 
     Renderer renderer;
 
-    for (int i = 0; i < 120; i += 5) {
-        glm::mat4 transform = glm::mat4(1.0f);
-        transform = glm::translate(transform, glm::vec3(0.0f, 0.0f, 0.0f));
-
-        glm::vec4 position(cube.vertices[i], cube.vertices[i + 1], cube.vertices[i + 2], 1.0f);
-        glm::vec2 texture(cube.vertices[i + 3], cube.vertices[i + 4]);
-
-        position = transform * position;
-
-        vertices.push_back(position.x);
-        vertices.push_back(position.y);
-        vertices.push_back(position.z);
-        vertices.push_back(texture.x);
-        vertices.push_back(texture.y);
-    }
-
-    for (int i = 0; i < 36; i++)
-    {
-        indices.push_back(cube.indices[i]);
-    }
+    cube.spawn(vertices, indices, glm::vec3(1.0f));
+    cube.spawn(vertices, indices, glm::vec3(2.0f));
+    cube.spawn(vertices, indices, glm::vec3(3.0f));
 
     std::cout << indices.size() << " " << vertices.size() << std::endl;
 
