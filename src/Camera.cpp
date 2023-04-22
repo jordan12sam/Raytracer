@@ -48,6 +48,9 @@ void Camera::processKeyboardInput(float deltaTime) {
         m_position += m_up * velocity;
     if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         m_position -= m_up * velocity;
+    // TODO: Make program close safely
+    if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwTerminate();
 }
 
 void Camera::processMouseInput(float xoffset, float yoffset, bool constrainPitch) {

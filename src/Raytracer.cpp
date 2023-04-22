@@ -62,14 +62,6 @@ int main()
     {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
-        double xpos, ypos;
-        glfwGetCursorPos(window.getWindow(), &xpos, &ypos);
-        xpos = xpos - (float)SCR_WIDTH/2.0f;
-        ypos = ypos - (float)SCR_HEIGHT/2.0f;
-
-        camera.processKeyboardInput(0.001f);
-        camera.processMouseInput(xpos, ypos);
-
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = camera.getViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(80.0f), AR, 0.1f, 100.0f);
@@ -77,6 +69,14 @@ int main()
         shader.setMat4("uMVP", mvp);
 
         renderer.draw(vertexArray, indexBuffer, shader);
+
+        double xpos, ypos;
+        glfwGetCursorPos(window.getWindow(), &xpos, &ypos);
+        xpos = xpos - (float)SCR_WIDTH/2.0f;
+        ypos = ypos - (float)SCR_HEIGHT/2.0f;
+
+        camera.processMouseInput(xpos, ypos);
+        camera.processKeyboardInput(0.001f);
     }
 
     return 0;
