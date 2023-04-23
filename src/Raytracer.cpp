@@ -31,6 +31,9 @@ int main()
     Shader shader;
     shader.createShader("../res/vertexShader.glsl", "../res/fragmentShader.glsl");
 
+    ComputeShader computeShader;
+    computeShader.createShader("../res/computeShader.glsl");
+
     Cube cube;
 
     std::vector<float> vertices;

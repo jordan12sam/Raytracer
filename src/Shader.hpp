@@ -35,4 +35,5 @@ class ComputeShader : public Shader
 {
     public:
     virtual void createShader(const char* computeShader);
+    void updateWorkGroups(int x, int y, int z);
 };

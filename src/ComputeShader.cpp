@@ -35,3 +35,9 @@ void ComputeShader::createShader(const char* computePath)
     rendererID =  program;
     return;
 }
+
+void ComputeShader::updateWorkGroups(int x, int y, int z)
+{
+    glDispatchCompute(x, y, z);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+}
