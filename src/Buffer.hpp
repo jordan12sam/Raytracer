@@ -16,6 +16,7 @@ class Buffer
         ~Buffer();
 
         void bind() const;
+        void bind(int binding) const;
         void unbind() const;
 
 };
