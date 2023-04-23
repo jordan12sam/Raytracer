@@ -42,6 +42,8 @@ int main()
     cube.spawn(vertices, indices, glm::vec3(4.1f, 0.1f, 3.0f), glm::vec3(1.2f), glm::vec4(0.5f, 1.0f, 0.2f, 1.0f));
     cube.spawn(vertices, indices, glm::vec3(-2.3f, 0.7f, 1.8f), glm::vec3(0.8f), glm::vec4(0.8f, 0.4f, 0.6f, 1.0f));
     cube.spawn(vertices, indices, glm::vec3(0.0f, -32.0f, 0.0f), glm::vec3(60.0f), glm::vec4(0.2f, 1.0f, 0.8f, 1.0f));
+    cube.spawn(vertices, indices, glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.5f), glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+
 
     VertexBufferLayout layout;
     layout.push(GL_FLOAT, 3);
