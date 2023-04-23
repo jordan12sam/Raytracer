@@ -30,17 +30,14 @@ int main()
 
     Shader shader;
     shader.createShader("../res/vertexShader.glsl", "../res/fragmentShader.glsl");
-
     ComputeShader computeShader;
     computeShader.createShader("../res/computeShader.glsl");
-    computeShader.updateWorkGroups(SCR_WIDTH, SCR_HEIGHT, 1);
 
-    Cube cube;
+    Renderer renderer;
 
     std::vector<float> vertices;
     std::vector<int> indices;
-
-    Renderer renderer;
+    Cube cube;
 
     cube.spawn(vertices, indices, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), glm::vec4(1.0f, 0.5f, 0.2f, 1.0f));
     cube.spawn(vertices, indices, glm::vec3(0.2f, 1.0f, -3.5f), glm::vec3(2.8f), glm::vec4(0.2f, 0.5f, 1.0f, 1.0f));
@@ -48,7 +45,6 @@ int main()
     cube.spawn(vertices, indices, glm::vec3(-2.3f, 0.7f, 1.8f), glm::vec3(0.8f), glm::vec4(0.8f, 0.4f, 0.6f, 1.0f));
     cube.spawn(vertices, indices, glm::vec3(0.0f, -32.0f, 0.0f), glm::vec3(60.0f), glm::vec4(0.2f, 1.0f, 0.8f, 1.0f));
     cube.spawn(vertices, indices, glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.5f), glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
-
 
     VertexBufferLayout layout;
     layout.push(GL_FLOAT, 3);
@@ -60,10 +56,6 @@ int main()
 
     VertexArray vertexArray;
     vertexArray.addBuffer(vertexBuffer, layout);
-
-    vertexBuffer.unbind();
-    indexBuffer.unbind();
-    vertexArray.unbind();
 
     glEnable(GL_DEPTH_TEST);
 
