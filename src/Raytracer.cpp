@@ -33,6 +33,7 @@ int main()
 
     ComputeShader computeShader;
     computeShader.createShader("../res/computeShader.glsl");
+    computeShader.updateWorkGroups(SCR_WIDTH, SCR_HEIGHT, 1);
 
     Cube cube;
 
@@ -55,9 +56,10 @@ int main()
     layout.push(GL_FLOAT, 4);
 
     VertexBuffer vertexBuffer(vertices, vertices.size() * sizeof(GLfloat));
+    IndexBuffer indexBuffer(indices, indices.size());
+
     VertexArray vertexArray;
     vertexArray.addBuffer(vertexBuffer, layout);
-    IndexBuffer indexBuffer(indices, indices.size());
 
     vertexBuffer.unbind();
     indexBuffer.unbind();
