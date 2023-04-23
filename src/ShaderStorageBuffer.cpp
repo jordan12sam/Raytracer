@@ -8,7 +8,7 @@ ShaderStorageBuffer::ShaderStorageBuffer(const std::vector<float> data, unsigned
     glBufferData(type, size, &data[0], GL_STATIC_DRAW);
 }
 
-unsigned int VertexBuffer::getType() const
+unsigned int ShaderStorageBuffer::getType() const
 {
     return GL_SHADER_STORAGE_BUFFER;
 }
