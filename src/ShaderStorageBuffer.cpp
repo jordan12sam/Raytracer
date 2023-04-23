@@ -1,11 +1,11 @@
 #include "Buffer.hpp"
 
-ShaderStorageBuffer::ShaderStorageBuffer(const std::vector<float> data, unsigned int size)
+ShaderStorageBuffer::ShaderStorageBuffer(unsigned int size)
 {
     type = getType();
     glGenBuffers(1, &rendererID);
-    this->bind();
-    glBufferData(type, size, &data[0], GL_STATIC_DRAW);
+    this->bind(0);
+    glBufferData(type, size, nullptr, GL_DYNAMIC_COPY);
 }
 
 unsigned int ShaderStorageBuffer::getType() const

@@ -44,5 +44,5 @@ class ShaderStorageBuffer: public Buffer
     private:
         virtual unsigned int getType() const;
     public:
-        ShaderStorageBuffer(const std::vector<float> data, unsigned int size);
+        ShaderStorageBuffer(unsigned int size);
 };
