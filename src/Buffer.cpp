@@ -12,7 +12,7 @@ void Buffer::bind() const
 
 void Buffer::bind(int binding) const
 {
-    glBindBufferBase(type, binding, rendererID);
+    glBindBufferBase(type, binding, &rendererID);
 }
 
 void Buffer::unbind() const
