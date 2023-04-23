@@ -1,10 +1,8 @@
 #include "Shader.hpp"
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath)
+Shader::Shader()
 {
-    std::string vertexShaderSource = parseShader(vertexPath);
-    std::string fragmentShaderSource = parseShader(fragmentPath);
-    rendererID = createShader(vertexShaderSource, fragmentShaderSource);
+    rendererID = 0;
 }
 
 Shader::~Shader()
@@ -93,14 +91,17 @@ void Shader::compileShader(unsigned int shaderID, const std::string& shaderSourc
     }
 }
 
-unsigned int Shader::createShader(const std::string& vertexShader, const std::string& fragmentShader) const
+void Shader::createShader(const char* vertexPath, const char* fragmentPath)
 {
+    std::string vertexShaderSource = parseShader(vertexPath);
+    std::string fragmentShaderSource = parseShader(fragmentPath);
+
     unsigned int program = glCreateProgram();
     unsigned int vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
     unsigned int fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
 
-    compileShader(vertexShaderID, vertexShader);
-    compileShader(fragmentShaderID, fragmentShader);
+    compileShader(vertexShaderID, vertexShaderSource);
+    compileShader(fragmentShaderID, fragmentShaderSource);
 
     glAttachShader(program, vertexShaderID);
     glAttachShader(program, fragmentShaderID);
@@ -120,7 +121,8 @@ unsigned int Shader::createShader(const std::string& vertexShader, const std::st
         glDeleteProgram(program);
         glDeleteShader(vertexShaderID);
         glDeleteShader(fragmentShaderID);
-        return 0;
+        rendererID =  0;
+        return;
     }
 
     glDetachShader(program, vertexShaderID);
@@ -129,5 +131,5 @@ unsigned int Shader::createShader(const std::string& vertexShader, const std::st
     glDeleteShader(vertexShaderID);
     glDeleteShader(fragmentShaderID);
 
-    return program;
+    rendererID =  program;
 }

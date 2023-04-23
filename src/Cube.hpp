@@ -81,8 +81,6 @@ class Cube {
 
             glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), scale);
             glm::mat4 translateMat = glm::translate(glm::mat4(1.0f), position);
-
-            std::cout << position.x << position.y << position.z << std::endl;
             
             for (int i = 0; i < verticesCount; i += 5) {
 

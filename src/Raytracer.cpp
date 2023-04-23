@@ -28,7 +28,8 @@ int main()
 
     Camera camera;
 
-    Shader shader("../res/vertexShader.glsl", "../res/fragmentShader.glsl");
+    Shader shader;
+    shader.createShader("../res/vertexShader.glsl", "../res/fragmentShader.glsl");
 
     Cube cube;
 
