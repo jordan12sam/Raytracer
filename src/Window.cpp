@@ -22,6 +22,10 @@ Window::Window(int width, int height, const char* title)
         throw std::runtime_error("Failed to create GLFW window");
     }
 
+    ImGui::CreateContext();
+    ImGui_ImplGlfwGL3_Init(m_window, true);
+    ImGui::StyleColorsDark();
+
     glfwMakeContextCurrent(m_window);
     glfwSetWindowUserPointer(m_window, this);
 
@@ -35,6 +39,8 @@ Window::Window(int width, int height, const char* title)
 }
 
 Window::~Window() {
+    ImGui_ImplGlfwGL3_Shutdown();
+    ImGui::DestroyContext();
     glfwTerminate();
 }
 

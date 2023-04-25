@@ -16,7 +16,6 @@
 #include "Cube.hpp"
 
 #include <vector>
-#include <chrono>
 
 // define screen size
 const unsigned int SCR_WIDTH = 1600;
@@ -62,10 +61,11 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    auto now = std::chrono::high_resolution_clock::now();
     while (window.isOpen())
     {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+
+        ImGui_ImplGlfwGL3_NewFrame();
 
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = camera.getViewMatrix();
@@ -81,9 +81,12 @@ int main()
         ypos = ypos - (float)SCR_HEIGHT/2.0f;
 
         camera.processMouseInput(xpos, ypos);
-        std::cout << (std::chrono::high_resolution_clock::now() - now).count() << std::endl;
-        camera.processKeyboardInput((std::chrono::high_resolution_clock::now() - now).count());
-        now = std::chrono::high_resolution_clock::now();
+        camera.processKeyboardInput((ImGui::GetIO().Framerate));
+
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+        ImGui::Render();
+        ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
     }
 
     return 0;

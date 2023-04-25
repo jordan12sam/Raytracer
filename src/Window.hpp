@@ -2,6 +2,9 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <imgui.h>
+#include <examples/opengl3_example/imgui_impl_glfw_gl3.h>
+
 #include <stdexcept>
 
 class Window {
