@@ -16,6 +16,7 @@
 #include "Cube.hpp"
 
 #include <vector>
+#include <chrono>
 
 // define screen size
 const unsigned int SCR_WIDTH = 1600;
@@ -42,7 +43,7 @@ int main()
     cube.spawn(vertices, indices, glm::vec3(4.1f, 0.1f, 3.0f), glm::vec3(1.2f), glm::vec4(0.5f, 1.0f, 0.2f, 1.0f));
     cube.spawn(vertices, indices, glm::vec3(-2.3f, 0.7f, 1.8f), glm::vec3(0.8f), glm::vec4(0.8f, 0.4f, 0.6f, 1.0f));
     cube.spawn(vertices, indices, glm::vec3(0.0f, -32.0f, 0.0f), glm::vec3(60.0f), glm::vec4(0.2f, 1.0f, 0.8f, 1.0f));
-    cube.spawn(vertices, indices, glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.5f), glm::vec4(0.0f, 0.0f, 0.0f, 0.0f));
+    cube.spawn(vertices, indices, glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.5f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
 
     VertexBufferLayout layout;
@@ -61,6 +62,7 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
+    auto now = std::chrono::high_resolution_clock::now();
     while (window.isOpen())
     {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -79,7 +81,9 @@ int main()
         ypos = ypos - (float)SCR_HEIGHT/2.0f;
 
         camera.processMouseInput(xpos, ypos);
-        camera.processKeyboardInput(0.01f);
+        std::cout << (std::chrono::high_resolution_clock::now() - now).count() << std::endl;
+        camera.processKeyboardInput((std::chrono::high_resolution_clock::now() - now).count());
+        now = std::chrono::high_resolution_clock::now();
     }
 
     return 0;
