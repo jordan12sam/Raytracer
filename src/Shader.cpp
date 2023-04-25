@@ -63,9 +63,6 @@ std::string Shader::parseShader(const char* filepath) const
     if (!stream) {
         std::cerr << "Error: Invalid stream" << std::endl;
         perror(filepath);
-        char tmp[256];
-        getcwd(tmp, 256);
-        std::cout << "Current working directory: " << tmp << std::endl;
     }
     std::stringstream buffer;
     buffer << stream.rdbuf();
