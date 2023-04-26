@@ -10,6 +10,7 @@
 #include "Camera.hpp"
 #include "Shader.hpp"
 #include "Renderer.hpp"
+#include "Texture.hpp"
 #include "Buffer.hpp"
 #include "VertexArray.hpp"
 #include "VertexBufferLayout.hpp"
@@ -28,7 +29,11 @@ int main()
 
     Camera camera;
 
-    Shader shader("../res/vertexShader.glsl", "../res/fragmentShader.glsl");
+    Shader shader("../res/shaders/vertexShader.glsl", "../res/shaders/fragmentShader.glsl");
+    shader.setInt("uTexture", 0);
+
+    Texture texture("../res/textures/steel.png");
+    texture.bind();
 
     Cube cube;
 
