@@ -36,39 +36,6 @@ GLuint quadIndices[] =
 	0, 3, 2
 };
 
-const char* screenVertexShaderSource = R"(#version 460 core
-layout (location = 0) in vec3 pos;
-layout (location = 1) in vec2 uvs;
-out vec2 UVs;
-void main()
-{
-	gl_Position = vec4(pos.x, pos.y, pos.z, 1.0);
-	UVs = uvs;
-})";
-const char* screenFragmentShaderSource = R"(#version 460 core
-out vec4 FragColor;
-uniform sampler2D screen;
-in vec2 UVs;
-void main()
-{
-	FragColor = texture(screen, UVs);
-})";
-const char* screenComputeShaderSource = R"(#version 460 core
-layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
-layout(rgba32f, binding = 0) uniform image2D screen;
-void main()
-{
-    // Scale screen coordinates to [0.0, 1.0]
-	ivec2 pixelCoordinates = ivec2(gl_GlobalInvocationID.xy);
-	ivec2 dimensions = imageSize(screen);
-	float x = (float(pixelCoordinates.x) / dimensions.x);
-	float y = (float(pixelCoordinates.y) / dimensions.y);
-
-    vec4 pixelColour = vec4(x, y, 0.0, 1.0);
-
-	imageStore(screen, pixelCoordinates, pixelColour);
-})";
-
 int main()
 {
     {    
@@ -106,34 +73,6 @@ int main()
         ShaderProgram computeProgram;
         computeProgram.attach(computeShader);
         computeProgram.link();
-
-        /*
-        // Define shaders
-        GLuint screenVertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(screenVertexShader, 1, &vertexSource, NULL);
-        glCompileShader(screenVertexShader);
-        GLuint screenFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(screenFragmentShader, 1, &fragmentSource, NULL);
-        glCompileShader(screenFragmentShader);
-
-        GLuint screenShaderProgram = glCreateProgram();
-        glAttachShader(screenShaderProgram, screenVertexShader);
-        glAttachShader(screenShaderProgram, screenFragmentShader);
-        glLinkProgram(screenShaderProgram);
-
-        glDeleteShader(screenVertexShader);
-        glDeleteShader(screenFragmentShader);
-
-        GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
-        glShaderSource(computeShader, 1, &computeSource, NULL);
-        glCompileShader(computeShader);
-
-        GLuint computeProgram = glCreateProgram();
-        glAttachShader(computeProgram, computeShader);
-        glLinkProgram(computeProgram);
-
-        glDeleteShader(computeShader);
-        */
 
         while (window.isOpen())
         {
