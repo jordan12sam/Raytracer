@@ -2,14 +2,18 @@
 
 Shader::Shader(const char* sourcePath, GLuint type)
 {
-    std::ifstream stream(sourcePath);
-    if (!stream) {
-        std::cerr << "Error: Invalid stream" << std::endl;
-        perror(sourcePath);
+    std::ifstream infile(sourcePath);
+    if (!infile) {
+        std::cerr << "Error: Failed to open file " << sourcePath << std::endl;
     }
-    std::stringstream buffer;
-    buffer << stream.rdbuf();
-    const char* source = buffer.str().c_str();
+
+    std::ostringstream oss;
+    oss << infile.rdbuf();
+    std::string contents = oss.str();
+
+    char* buffer = new char[contents.length() + 1];
+    std::strcpy(buffer, contents.c_str());
+    const char* source = buffer;
 
     ID = glCreateShader(type);
     glShaderSource(ID, 1, &source, nullptr);

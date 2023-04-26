@@ -9,6 +9,7 @@
 #include "Window.hpp"
 #include "Camera.hpp"
 #include "Shader.hpp"
+#include "ShaderProgram.hpp"
 #include "Renderer.hpp"
 #include "Texture.hpp"
 #include "Buffer.hpp"
@@ -34,7 +35,6 @@ GLuint quadIndices[] =
 	0, 2, 1,
 	0, 3, 2
 };
-
 
 const char* screenVertexShaderSource = R"(#version 460 core
 layout (location = 0) in vec3 pos;
@@ -69,7 +69,6 @@ void main()
 	imageStore(screen, pixelCoordinates, pixelColour);
 })";
 
-
 int main()
 {
     {    
@@ -96,11 +95,25 @@ int main()
         glBindImageTexture(0, screenTex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
         // Define shaders
+        Shader vertexShader("../res/shaders/vertexShader.glsl", GL_VERTEX_SHADER);
+        Shader fragmentShader("../res/shaders/fragmentShader.glsl", GL_FRAGMENT_SHADER);
+        ShaderProgram shaderProgram;
+        shaderProgram.attach(vertexShader);
+        shaderProgram.attach(fragmentShader);
+        shaderProgram.link();
+
+        Shader computeShader("../res/shaders/computeShader.glsl", GL_COMPUTE_SHADER);
+        ShaderProgram computeProgram;
+        computeProgram.attach(computeShader);
+        computeProgram.link();
+
+        /*
+        // Define shaders
         GLuint screenVertexShader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(screenVertexShader, 1, &screenVertexShaderSource, NULL);
+        glShaderSource(screenVertexShader, 1, &vertexSource, NULL);
         glCompileShader(screenVertexShader);
         GLuint screenFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(screenFragmentShader, 1, &screenFragmentShaderSource, NULL);
+        glShaderSource(screenFragmentShader, 1, &fragmentSource, NULL);
         glCompileShader(screenFragmentShader);
 
         GLuint screenShaderProgram = glCreateProgram();
@@ -112,7 +125,7 @@ int main()
         glDeleteShader(screenFragmentShader);
 
         GLuint computeShader = glCreateShader(GL_COMPUTE_SHADER);
-        glShaderSource(computeShader, 1, &screenComputeShaderSource, NULL);
+        glShaderSource(computeShader, 1, &computeSource, NULL);
         glCompileShader(computeShader);
 
         GLuint computeProgram = glCreateProgram();
@@ -120,16 +133,17 @@ int main()
         glLinkProgram(computeProgram);
 
         glDeleteShader(computeShader);
+        */
 
         while (window.isOpen())
         {
-            glUseProgram(computeProgram);
+            computeProgram.bind();
             glDispatchCompute(ceil(SCREEN_WIDTH / 8), ceil(SCREEN_HEIGHT / 4), 1);
             glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
-            glUseProgram(screenShaderProgram);
+            shaderProgram.bind();
             glBindTextureUnit(0, screenTex);
-            glUniform1i(glGetUniformLocation(screenShaderProgram, "screen"), 0);
+            shaderProgram.setInt("screen", 0);
             VAO.bind();
             glDrawElements(GL_TRIANGLES, sizeof(quadIndices) / sizeof(quadIndices[0]), GL_UNSIGNED_INT, 0);
         }
