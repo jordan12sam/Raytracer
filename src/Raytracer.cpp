@@ -11,7 +11,6 @@
 #include "Shader.hpp"
 #include "ShaderProgram.hpp"
 #include "Renderer.hpp"
-#include "Texture.hpp"
 #include "Buffer.hpp"
 #include "VertexArray.hpp"
 #include "VertexBufferLayout.hpp"
@@ -19,8 +18,8 @@
 
 #include <vector>
 
-const unsigned int SCREEN_WIDTH = 1600;
-const unsigned int SCREEN_HEIGHT = 900;
+unsigned int screenWidth = 1600;
+unsigned int screenHeight = 900;
 
 GLfloat quadVertices[] =
 {
@@ -40,7 +39,10 @@ int main()
 {
     {    
         // Initialise window
-        Window window(SCREEN_WIDTH, SCREEN_HEIGHT, "Raytracer");
+        Window window(screenWidth, screenHeight, "Raytracer");
+
+        // Initialise Renderer
+        Renderer renderer(screenWidth, screenHeight);
 
         // Define vertex buffer, vertex array, and index buffer objects
         VertexBufferLayout layout;
@@ -50,16 +52,6 @@ int main()
         VertexArray VAO;
         VAO.addBuffer(VBO, layout);
         IndexBuffer IBO(quadIndices, 6);
-
-        // Define texture to be rendered to the screen
-        GLuint screenTex;
-        glCreateTextures(GL_TEXTURE_2D, 1, &screenTex);
-        glTextureParameteri(screenTex, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTextureParameteri(screenTex, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTextureParameteri(screenTex, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTextureParameteri(screenTex, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTextureStorage2D(screenTex, 1, GL_RGBA32F, SCREEN_WIDTH, SCREEN_HEIGHT);
-        glBindImageTexture(0, screenTex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
         // Define shaders
         Shader vertexShader("../res/shaders/vertexShader.glsl", GL_VERTEX_SHADER);
@@ -76,15 +68,17 @@ int main()
 
         while (window.isOpen())
         {
+            //TODO: Move this to Renderer::draw
             computeProgram.bind();
-            glDispatchCompute(ceil(SCREEN_WIDTH / 8), ceil(SCREEN_HEIGHT / 4), 1);
+            glMemoryBarrier(GL_ALL_BARRIER_BITS);
+            glDispatchCompute(ceil(screenWidth / 8), ceil(screenHeight / 4), 1);
             glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
             shaderProgram.bind();
-            glBindTextureUnit(0, screenTex);
+            glBindTextureUnit(0, renderer.texture);
             shaderProgram.setInt("screen", 0);
             VAO.bind();
-            glDrawElements(GL_TRIANGLES, sizeof(quadIndices) / sizeof(quadIndices[0]), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         }
     }
 
