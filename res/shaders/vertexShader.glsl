@@ -1,17 +1,12 @@
-#version 330 core
+#version 460 core
 
-layout (location = 0) in vec4 Pos;
-layout (location = 1) in vec2 Tex;
-layout (location = 2) in vec4 Col;
+layout (location = 0) in vec3 pos;
+layout (location = 1) in vec2 uvs;
 
-uniform mat4 uMVP;
-
-out vec2 vTex;
-out vec4 vCol;
+out vec2 UVs;
 
 void main()
 {
-   gl_Position = uMVP * Pos;
-   vTex = Tex;
-   vCol = Col;
+	gl_Position = vec4(pos.x, pos.y, pos.z, 1.0);
+	UVs = uvs;
 }

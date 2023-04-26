@@ -8,6 +8,7 @@
 
 #include "Window.hpp"
 #include "Camera.hpp"
+#include "ShaderProgram.hpp"
 #include "Shader.hpp"
 #include "Renderer.hpp"
 #include "Texture.hpp"
@@ -18,81 +19,107 @@
 
 #include <vector>
 
-// define screen size
-const unsigned int SCR_WIDTH = 1600;
-const unsigned int SCR_HEIGHT = 900;
-const float AR = (float)SCR_WIDTH/(float)SCR_HEIGHT;
+const unsigned int SCREEN_WIDTH = 1600;
+const unsigned int SCREEN_HEIGHT = 900;
+
+GLfloat quadVertices[] =
+{
+	-1.0f, -1.0f , 0.0f, 0.0f, 0.0f,
+	-1.0f,  1.0f , 0.0f, 0.0f, 1.0f,
+	 1.0f,  1.0f , 0.0f, 1.0f, 1.0f,
+	 1.0f, -1.0f , 0.0f, 1.0f, 0.0f,
+};
+
+GLuint quadIndices[] =
+{
+	0, 2, 1,
+	0, 3, 2
+};
+
+
+const char* screenVertexShaderSource = R"(#version 460 core
+layout (location = 0) in vec3 pos;
+layout (location = 1) in vec2 uvs;
+out vec2 UVs;
+void main()
+{
+	gl_Position = vec4(pos.x, pos.y, pos.z, 1.0);
+	UVs = uvs;
+})";
+const char* screenFragmentShaderSource = R"(#version 460 core
+out vec4 FragColor;
+uniform sampler2D screen;
+in vec2 UVs;
+void main()
+{
+	FragColor = texture(screen, UVs);
+})";
+const char* screenComputeShaderSource = R"(#version 460 core
+layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
+layout(rgba32f, binding = 0) uniform image2D screen;
+void main()
+{
+    // Scale screen coordinates to [0.0, 1.0]
+	ivec2 pixelCoordinates = ivec2(gl_GlobalInvocationID.xy);
+	ivec2 dimensions = imageSize(screen);
+	float x = (float(pixelCoordinates.x) / dimensions.x);
+	float y = (float(pixelCoordinates.y) / dimensions.y);
+
+    vec4 pixelColour = vec4(x, y, 0.0, 1.0);
+
+	imageStore(screen, pixelCoordinates, pixelColour);
+})";
+
 
 int main()
 {
-    Window window(SCR_WIDTH, SCR_HEIGHT, "Raytracer");
+    {    
+        // Initialise window
+        Window window(SCREEN_WIDTH, SCREEN_HEIGHT, "Raytracer");
 
-    Camera camera;
+        // Define vertex buffer, vertex array, and index buffer objects
+        VertexBufferLayout layout;
+        layout.push(GL_FLOAT, 3);
+        layout.push(GL_FLOAT, 2);
+        VertexBuffer VBO(quadVertices, 20 * sizeof(GLfloat));
+        VertexArray VAO;
+        VAO.addBuffer(VBO, layout);
+        IndexBuffer IBO(quadIndices, 6);
 
-    Shader shader("../res/shaders/vertexShader.glsl", "../res/shaders/fragmentShader.glsl");
-    shader.setInt("uTexture", 0);
+        // Define texture to be rendered to the screen
+        GLuint screenTex;
+        glCreateTextures(GL_TEXTURE_2D, 1, &screenTex);
+        glTextureParameteri(screenTex, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTextureParameteri(screenTex, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTextureParameteri(screenTex, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTextureParameteri(screenTex, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTextureStorage2D(screenTex, 1, GL_RGBA32F, SCREEN_WIDTH, SCREEN_HEIGHT);
+        glBindImageTexture(0, screenTex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
-    Texture texture("../res/textures/steel.png");
-    texture.bind();
+        // Define shaders
+        Shader vertexShader("../res/shaders/vertexShader.glsl", GL_VERTEX_SHADER);
+        Shader fragmentShader("../res/shaders/fragmentShader.glsl", GL_FRAGMENT_SHADER);
+        ShaderProgram shaderProgram;
+        shaderProgram.attach(vertexShader);
+        shaderProgram.attach(fragmentShader);
+        shaderProgram.link();
 
-    Cube cube;
+        Shader computeShader("../res/shaders/computeShader.glsl", GL_COMPUTE_SHADER);
+        ShaderProgram computeProgram;
+        computeProgram.attach(computeShader);
+        computeProgram.link();
 
-    std::vector<float> vertices;
-    std::vector<int> indices;
+        while (window.isOpen())
+        {
+            computeProgram.bind();
+            glDispatchCompute(ceil(SCREEN_WIDTH / 8), ceil(SCREEN_HEIGHT / 4), 1);
+            glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
-    Renderer renderer;
-
-    cube.spawn(vertices, indices, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), glm::vec4(1.0f, 0.5f, 0.2f, 1.0f));
-    cube.spawn(vertices, indices, glm::vec3(0.2f, 1.0f, -3.5f), glm::vec3(2.8f), glm::vec4(0.2f, 0.5f, 1.0f, 1.0f));
-    cube.spawn(vertices, indices, glm::vec3(4.1f, 0.1f, 3.0f), glm::vec3(1.2f), glm::vec4(0.5f, 1.0f, 0.2f, 1.0f));
-    cube.spawn(vertices, indices, glm::vec3(-2.3f, 0.7f, 1.8f), glm::vec3(0.8f), glm::vec4(0.8f, 0.4f, 0.6f, 1.0f));
-    cube.spawn(vertices, indices, glm::vec3(0.0f, -32.0f, 0.0f), glm::vec3(60.0f), glm::vec4(0.2f, 1.0f, 0.8f, 1.0f));
-    cube.spawn(vertices, indices, glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.5f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-
-
-    VertexBufferLayout layout;
-    layout.push(GL_FLOAT, 3);
-    layout.push(GL_FLOAT, 2);
-    layout.push(GL_FLOAT, 4);
-
-    VertexBuffer vertexBuffer(vertices, vertices.size() * sizeof(GLfloat));
-    VertexArray vertexArray;
-    vertexArray.addBuffer(vertexBuffer, layout);
-    IndexBuffer indexBuffer(indices, indices.size());
-
-    vertexBuffer.unbind();
-    indexBuffer.unbind();
-    vertexArray.unbind();
-
-    glEnable(GL_DEPTH_TEST);
-
-    while (window.isOpen())
-    {
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-
-        ImGui_ImplGlfwGL3_NewFrame();
-
-        glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 view = camera.getViewMatrix();
-        glm::mat4 projection = glm::perspective(glm::radians(80.0f), AR, 0.1f, 100.0f);
-        glm::mat4 mvp = projection * view * model;
-        shader.setMat4("uMVP", mvp);
-
-        renderer.draw(vertexArray, indexBuffer, shader);
-
-        double xpos, ypos;
-        glfwGetCursorPos(window.getWindow(), &xpos, &ypos);
-        xpos = xpos - (float)SCR_WIDTH/2.0f;
-        ypos = ypos - (float)SCR_HEIGHT/2.0f;
-
-        camera.processMouseInput(xpos, ypos);
-        camera.processKeyboardInput((ImGui::GetIO().Framerate));
-
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-        ImGui::Render();
-        ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+            shaderProgram.bind();
+            glBindTextureUnit(0, screenTex);
+            shaderProgram.setInt("screen", 0);
+            VAO.bind();
+            glDrawElements(GL_TRIANGLES, sizeof(quadIndices) / sizeof(quadIndices[0]), GL_UNSIGNED_INT, 0);
+        }
     }
-
-    return 0;
 }

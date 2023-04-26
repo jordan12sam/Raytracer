@@ -1,6 +1,6 @@
 #include "Buffer.hpp"
 
-IndexBuffer::IndexBuffer(const std::vector<int> data, unsigned int count)
+IndexBuffer::IndexBuffer(const GLuint* data, unsigned int count)
     : count(count)
 {
     type = getType();

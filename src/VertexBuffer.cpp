@@ -1,6 +1,6 @@
 #include "Buffer.hpp"
 
-VertexBuffer::VertexBuffer(const std::vector<float> data, unsigned int size)
+VertexBuffer::VertexBuffer(const GLfloat* data, unsigned int size)
 {
     type = getType();
     glGenBuffers(1, &rendererID);
