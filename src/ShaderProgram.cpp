@@ -45,9 +45,19 @@ void ShaderProgram::setInt(const std::string& name, int value) const
     glUniform1i(getUniformLocation(name), value);
 }
 
+void ShaderProgram::setIntArray(const std::string& name, int* value, int count) const
+{
+    glUniform1iv(getUniformLocation(name), count, value);
+}
+
 void ShaderProgram::setFloat(const std::string& name, float value) const
 {
     glUniform1f(getUniformLocation(name), value);
+}
+
+void ShaderProgram::setFloatArray(const std::string& name, float* value, int count) const
+{
+    glUniform1fv(getUniformLocation(name), count, value);
 }
 
 void ShaderProgram::setVec3(const std::string& name, const glm::vec3& value) const

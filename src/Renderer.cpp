@@ -13,15 +13,5 @@ Renderer::Renderer(const unsigned int width, const unsigned int height)
 
 void Renderer::draw(ShaderProgram computeProgram, ShaderProgram shaderProgram, VertexArray VAO, const unsigned int width, const unsigned int height)
 {
-    computeProgram.bind();
-    glMemoryBarrier(GL_ALL_BARRIER_BITS);
-    glDispatchCompute(ceil(width / 8), ceil(height / 4), 1);
-    glMemoryBarrier(GL_ALL_BARRIER_BITS);
-
-    shaderProgram.bind();
-    glBindTextureUnit(0, texture);
-    shaderProgram.setInt("screen", 0);
-    VAO.bind();
-    std::this_thread::sleep_for(std::chrono::milliseconds(15));
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    //TODO: Why does the render flicker from within here?
 }

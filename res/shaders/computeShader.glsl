@@ -3,6 +3,11 @@
 layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 layout(rgba32f, binding = 0) uniform image2D screen;
 
+uniform float vertices[];
+uniform int indices[];
+uniform int numVertices;
+uniform int numIndices;
+
 void main()
 {
     // Scale pixel coordinates to [0.0, 1.0]
@@ -11,7 +16,10 @@ void main()
 	float x = (float(pixelCoordinates.x) / dimensions.x);
 	float y = (float(pixelCoordinates.y) / dimensions.y);
 
-    vec4 pixelColour = vec4(x, y, 0.0, 1.0);
+	float numVertices_f = float(numVertices);
+	float numIndices_f = float(numIndices);
+
+    vec4 pixelColour = vec4(vertices[5], 1.0, 0.0, 1.0);
 
 	imageStore(screen, pixelCoordinates, pixelColour);
 }

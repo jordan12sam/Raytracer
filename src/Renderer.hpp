@@ -9,8 +9,6 @@
 #include "ShaderProgram.hpp"
 
 #include <iostream>
-#include <chrono>
-#include <thread>
 
 class Renderer
 {

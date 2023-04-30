@@ -9,7 +9,7 @@
 class Buffer
 {
     protected:
-        unsigned int rendererID;
+        unsigned int ID;
         unsigned int type;
         virtual unsigned int getType() const = 0;
     public:
@@ -17,6 +17,7 @@ class Buffer
 
         void bind() const;
         void unbind() const;
+        void bindBase(GLuint binding) const;
 
 };
 

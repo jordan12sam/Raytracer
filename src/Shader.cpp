@@ -5,6 +5,13 @@ Shader::Shader(const char* sourcePath, GLuint type)
     std::ifstream infile(sourcePath);
     if (!infile) {
         std::cerr << "Error: Failed to open file " << sourcePath << std::endl;
+        std::cerr << strerror(errno) << std::endl;
+
+        TCHAR NPath[MAX_PATH];
+        GetCurrentDirectory(MAX_PATH, NPath);
+
+        std::cerr << NPath << std::endl;
+
     }
 
     std::ostringstream oss;

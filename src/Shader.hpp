@@ -8,6 +8,8 @@
 #include <sstream>
 #include <iostream>
 #include <filesystem>
+#include <windows.h>
+#include <iostream>
 
 class Shader
 {
