@@ -15,7 +15,9 @@ public:
 
     virtual void onFramebufferSize(GLFWwindow* window, int width, int height);
 
-    inline GLFWwindow* getWindow(){return m_window;}
+    inline GLFWwindow* getWindow() { return m_window; }
+    inline int getWidth() { return m_width; }
+    inline int getHeight() { return m_height; }
 
 private:
     int m_width;

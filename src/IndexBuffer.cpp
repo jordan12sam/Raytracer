@@ -1,10 +1,10 @@
 #include "Buffer.hpp"
 
-IndexBuffer::IndexBuffer(const std::vector<int> data, unsigned int count)
+IndexBuffer::IndexBuffer(const GLuint* data, unsigned int count)
     : count(count)
 {
     type = getType();
-    glGenBuffers(1, &rendererID);
+    glGenBuffers(1, &ID);
     this->bind();
     glBufferData(type, count * sizeof(unsigned int), &data[0], GL_STATIC_DRAW);
 }

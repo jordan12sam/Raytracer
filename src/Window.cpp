@@ -1,6 +1,9 @@
 #include "Window.hpp"
 #include <iostream>
 
+const unsigned short OPENGL_MAJOR_VERSION = 4;
+const unsigned short OPENGL_MINOR_VERSION = 6;
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     Window* windowObject = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
     windowObject->onFramebufferSize(window, width, height);
@@ -12,8 +15,8 @@ Window::Window(int width, int height, const char* title)
         throw std::runtime_error("Failed to initialize GLFW");
     }
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPENGL_MAJOR_VERSION);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPENGL_MINOR_VERSION);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     m_window = glfwCreateWindow(m_width, m_height, m_title, nullptr, nullptr);
@@ -21,10 +24,6 @@ Window::Window(int width, int height, const char* title)
         glfwTerminate();
         throw std::runtime_error("Failed to create GLFW window");
     }
-
-    ImGui::CreateContext();
-    ImGui_ImplGlfwGL3_Init(m_window, true);
-    ImGui::StyleColorsDark();
 
     glfwMakeContextCurrent(m_window);
     glfwSetWindowUserPointer(m_window, this);
@@ -47,8 +46,6 @@ Window::~Window() {
 bool Window::isOpen() {
     glfwSwapBuffers(m_window);
     glfwPollEvents();
-    glClear(GL_COLOR_BUFFER_BIT);
-    glClear(GL_DEPTH_BUFFER_BIT);
 
     return !glfwWindowShouldClose(m_window);
 }

@@ -2,6 +2,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
+#define GLM_SWIZZLE_XYZW 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <imgui.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -9,8 +12,8 @@
 #include "Window.hpp"
 #include "Camera.hpp"
 #include "Shader.hpp"
+#include "ShaderProgram.hpp"
 #include "Renderer.hpp"
-#include "Texture.hpp"
 #include "Buffer.hpp"
 #include "VertexArray.hpp"
 #include "VertexBufferLayout.hpp"
@@ -18,81 +21,100 @@
 
 #include <vector>
 
-// define screen size
-const unsigned int SCR_WIDTH = 1600;
-const unsigned int SCR_HEIGHT = 900;
-const float AR = (float)SCR_WIDTH/(float)SCR_HEIGHT;
+unsigned int screenWidth = 1600;
+unsigned int screenHeight = 900;
+
+GLfloat quadVertices[] =
+{
+	-1.0f, -1.0f , 0.0f,    0.0f, 0.0f,
+	-1.0f,  1.0f , 0.0f,    0.0f, 1.0f,
+	 1.0f,  1.0f , 0.0f,    1.0f, 1.0f,
+	 1.0f, -1.0f , 0.0f,    1.0f, 0.0f
+};
+
+GLuint quadIndices[] =
+{
+	0, 2, 1,
+	0, 3, 2
+};
+
+GLfloat sceneVertices[] =
+{
+	-0.5f, -0.5f , 0.0f,    0.0f, 0.0f,     1.0, 0.0, 0.0, 1.0,
+	-0.5f,  0.5f , 0.0f,    0.0f, 0.5f,     0.0, 1.0, 0.0, 1.0,
+	 0.5f,  0.5f , 0.0f,    0.5f, 0.5f,     1.0, 0.0, 1.0, 1.0,
+	 0.5f, -0.5f , 0.0f,    0.5f, 0.0f,     1.0, 1.0, 1.0, 1.0
+};
+
+GLint sceneIndices[] =
+{
+	0, 2, 1,
+	0, 3, 2
+};
 
 int main()
 {
-    Window window(SCR_WIDTH, SCR_HEIGHT, "Raytracer");
+    {    
+        // QUAD SETUP
+        // Initialise window
+        Window window(screenWidth, screenHeight, "Raytracer");
 
-    Camera camera;
+        // Initialise Renderer
+        Renderer renderer(screenWidth, screenHeight);
 
-    Shader shader("../res/shaders/vertexShader.glsl", "../res/shaders/fragmentShader.glsl");
-    shader.setInt("uTexture", 0);
+        // Define vertex buffer, vertex array, and index buffer objects
+        VertexBufferLayout quadLayout;
+        quadLayout.push(GL_FLOAT, 3);
+        quadLayout.push(GL_FLOAT, 2);
+        VertexBuffer quadVBO(quadVertices, 20 * sizeof(GLfloat));
+        VertexArray quadVAO;
+        quadVAO.addBuffer(quadVBO, quadLayout);
+        IndexBuffer quadIBO(quadIndices, 6);
 
-    Texture texture("../res/textures/steel.png");
-    texture.bind();
+        // Define shaders
+        Shader vertexShader("../res/shaders/vertexShader.glsl", GL_VERTEX_SHADER);
+        Shader fragmentShader("../res/shaders/fragmentShader.glsl", GL_FRAGMENT_SHADER);
+        ShaderProgram shaderProgram;
+        shaderProgram.attach(vertexShader);
+        shaderProgram.attach(fragmentShader);
+        shaderProgram.link();
 
-    Cube cube;
+        Shader computeShader("../res/shaders/computeShader.glsl", GL_COMPUTE_SHADER);
+        ShaderProgram computeProgram;
+        computeProgram.attach(computeShader);
+        computeProgram.link();
 
-    std::vector<float> vertices;
-    std::vector<int> indices;
+        // SCENE SETUP
+        computeProgram.bind();
+        computeProgram.setFloatArray("vertices", sceneVertices, sizeof(sceneVertices) / sizeof(sceneVertices[0]));
+        computeProgram.setIntArray("indices", sceneIndices, sizeof(sceneIndices) / sizeof(sceneIndices[0]));
+        computeProgram.setInt("numVertices", sizeof(sceneVertices) / sizeof(sceneVertices[0]));
+        computeProgram.setInt("vertexSize", 9);
+        computeProgram.setInt("numIndices", sizeof(sceneIndices) / sizeof(sceneIndices[0]));
 
-    Renderer renderer;
-
-    cube.spawn(vertices, indices, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), glm::vec4(1.0f, 0.5f, 0.2f, 1.0f));
-    cube.spawn(vertices, indices, glm::vec3(0.2f, 1.0f, -3.5f), glm::vec3(2.8f), glm::vec4(0.2f, 0.5f, 1.0f, 1.0f));
-    cube.spawn(vertices, indices, glm::vec3(4.1f, 0.1f, 3.0f), glm::vec3(1.2f), glm::vec4(0.5f, 1.0f, 0.2f, 1.0f));
-    cube.spawn(vertices, indices, glm::vec3(-2.3f, 0.7f, 1.8f), glm::vec3(0.8f), glm::vec4(0.8f, 0.4f, 0.6f, 1.0f));
-    cube.spawn(vertices, indices, glm::vec3(0.0f, -32.0f, 0.0f), glm::vec3(60.0f), glm::vec4(0.2f, 1.0f, 0.8f, 1.0f));
-    cube.spawn(vertices, indices, glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.5f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-
-
-    VertexBufferLayout layout;
-    layout.push(GL_FLOAT, 3);
-    layout.push(GL_FLOAT, 2);
-    layout.push(GL_FLOAT, 4);
-
-    VertexBuffer vertexBuffer(vertices, vertices.size() * sizeof(GLfloat));
-    VertexArray vertexArray;
-    vertexArray.addBuffer(vertexBuffer, layout);
-    IndexBuffer indexBuffer(indices, indices.size());
-
-    vertexBuffer.unbind();
-    indexBuffer.unbind();
-    vertexArray.unbind();
-
-    glEnable(GL_DEPTH_TEST);
-
-    while (window.isOpen())
-    {
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-
-        ImGui_ImplGlfwGL3_NewFrame();
-
+        Camera camera;
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = camera.getViewMatrix();
-        glm::mat4 projection = glm::perspective(glm::radians(80.0f), AR, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(80.0f), (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
         glm::mat4 mvp = projection * view * model;
-        shader.setMat4("uMVP", mvp);
+        glm::vec3 test = glm::vec4(-0.5f, -0.5f , 0.0f, 1.0f) * mvp;
+        std::cout << glm::to_string(test) << std::endl;
 
-        renderer.draw(vertexArray, indexBuffer, shader);
+        computeProgram.setMat4("mvp", glm::mat4(1.0f));
 
-        double xpos, ypos;
-        glfwGetCursorPos(window.getWindow(), &xpos, &ypos);
-        xpos = xpos - (float)SCR_WIDTH/2.0f;
-        ypos = ypos - (float)SCR_HEIGHT/2.0f;
+        while (window.isOpen())
+        {
+            //TODO: Move this to Renderer::draw
+            computeProgram.bind();
+            glDispatchCompute(ceil(screenWidth / 8), ceil(screenHeight / 4), 1);
+            glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
-        camera.processMouseInput(xpos, ypos);
-        camera.processKeyboardInput((ImGui::GetIO().Framerate));
-
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-        ImGui::Render();
-        ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+            shaderProgram.bind();
+            glBindTextureUnit(0, renderer.texture);
+            shaderProgram.setInt("screen", 0);
+            quadVAO.bind();
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        }
     }
 
-    return 0;
 }
