@@ -2,6 +2,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
+#define GLM_SWIZZLE_XYZW 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <imgui.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -83,11 +86,21 @@ int main()
 
         // SCENE SETUP
         computeProgram.bind();
-        computeProgram.setInt("numVertices", sizeof(sceneVertices) / sizeof(sceneVertices[0]));
-        computeProgram.setInt("numIndices", sizeof(sceneIndices) / sizeof(sceneIndices[0]));
         computeProgram.setFloatArray("vertices", sceneVertices, sizeof(sceneVertices) / sizeof(sceneVertices[0]));
         computeProgram.setIntArray("indices", sceneIndices, sizeof(sceneIndices) / sizeof(sceneIndices[0]));
+        computeProgram.setInt("numVertices", sizeof(sceneVertices) / sizeof(sceneVertices[0]));
+        computeProgram.setInt("vertexSize", 9);
+        computeProgram.setInt("numIndices", sizeof(sceneIndices) / sizeof(sceneIndices[0]));
 
+        Camera camera;
+        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 view = camera.getViewMatrix();
+        glm::mat4 projection = glm::perspective(glm::radians(80.0f), (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
+        glm::mat4 mvp = projection * view * model;
+        glm::vec3 test = glm::vec4(-0.5f, -0.5f , 0.0f, 1.0f) * mvp;
+        std::cout << glm::to_string(test) << std::endl;
+
+        computeProgram.setMat4("mvp", glm::mat4(1.0f));
 
         while (window.isOpen())
         {
