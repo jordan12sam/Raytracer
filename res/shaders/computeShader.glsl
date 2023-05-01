@@ -10,7 +10,8 @@ uniform int vertexSize;
 uniform int numIndices;
 uniform mat4 mvp;
 
-bool intersectRayTriangle(vec3 rayOrigin, vec3 rayDirection, vec3 v0, vec3 v1, vec3 v2, out vec3 intersection)
+//Möller–Trumbore intersection algorithm
+bool intersectRayTriangle(vec3 rayDirection, vec3 v0, vec3 v1, vec3 v2, out vec3 intersection)
 {
     const float EPSILON = 0.000001;
 
@@ -23,7 +24,7 @@ bool intersectRayTriangle(vec3 rayOrigin, vec3 rayDirection, vec3 v0, vec3 v1, v
     }
 
     float f = 1.0 / a;
-    vec3 s = rayOrigin - v0;
+    vec3 s = -v0;
     float u = f * dot(s, h);
     if (u < 0.0 || u > 1.0) {
         return false; // intersection is outside the triangle
@@ -37,7 +38,7 @@ bool intersectRayTriangle(vec3 rayOrigin, vec3 rayDirection, vec3 v0, vec3 v1, v
 
     float t = f * dot(edge2, q);
     if (t > EPSILON) {
-        intersection = rayOrigin + rayDirection * t;
+        intersection = rayDirection * t;
         return true; // intersection is valid
     }
 
@@ -82,11 +83,12 @@ void getPrimitive(  int i,
 
 void main()
 {
-    // Scale pixel coordinates to [0.0, 1.0]
+    // Scale y coordinates to [-1.0, 1.0]
+    // And x coordinates to [-AR, AR]
 	ivec2 pixelCoordinates = ivec2(gl_GlobalInvocationID.xy);
 	ivec2 dimensions = imageSize(screen);
-	float x = (float(pixelCoordinates.x) / dimensions.x);
-	float y = (float(pixelCoordinates.y) / dimensions.y);
+	float x = -(float(pixelCoordinates.x * 2 - dimensions.x) / dimensions.y);
+	float y = -(float(pixelCoordinates.y * 2 - dimensions.y) / dimensions.y);
 
     // Test all primitives for intersection
     vec3 closestIntersection;
@@ -102,20 +104,16 @@ void main()
         pos1 = (vec4(pos1, 1.0) * mvp).xyz;
         pos2 = (vec4(pos2, 1.0) * mvp).xyz;
 
-        vec3 cameraOrigin = vec3(0.0, 0.0, -1.0);
-        vec3 pixelOrigin = vec3(x, y, 0.0);
-        vec3 rayDirection = normalize(pixelOrigin - cameraOrigin);
+        float fov = 90.0;
+        vec3 pixelOrigin = vec3(x, y, 0.5 / tan(radians(fov/2)));
+        vec3 rayDirection = normalize(pixelOrigin);
         vec3 intersection;
-        bool intersects = intersectRayTriangle(cameraOrigin, rayDirection, pos0,  pos1, pos2, intersection);
+        bool intersects = intersectRayTriangle(rayDirection, pos0,  pos1, pos2, intersection);
 
         if (intersects)
         {
             intersectsAny = true;
-
-            vec3 edge1 = intersection - cameraOrigin;
-            vec3 edge2 = closestIntersection - cameraOrigin;
-
-            if (length(edge1) < length(edge2))
+            if (length(intersection) < length(closestIntersection))
             {
                 closestIntersection = intersection;
             }
