@@ -11,7 +11,15 @@ Renderer::Renderer(const unsigned int width, const unsigned int height)
     glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 }
 
-void Renderer::draw(ShaderProgram computeProgram, ShaderProgram shaderProgram, VertexArray VAO, const unsigned int width, const unsigned int height)
+void Renderer::draw(ShaderProgram &computeProgram, ShaderProgram &shaderProgram, VertexArray &VAO, const unsigned int screenWidth, const unsigned int screenHeight)
 {
-    //TODO: Why does the render flicker from within here?
+    computeProgram.bind();
+    glDispatchCompute(ceil(screenWidth / 8), ceil(screenHeight / 4), 1);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+    shaderProgram.bind();
+    glBindTextureUnit(0, texture);
+    shaderProgram.setInt("screen", 0);
+    VAO.bind();
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }

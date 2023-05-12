@@ -104,16 +104,7 @@ int main()
 
         while (window.isOpen())
         {
-            //TODO: Move this to Renderer::draw
-            computeProgram.bind();
-            glDispatchCompute(ceil(screenWidth / 8), ceil(screenHeight / 4), 1);
-            glMemoryBarrier(GL_ALL_BARRIER_BITS);
-
-            shaderProgram.bind();
-            glBindTextureUnit(0, renderer.texture);
-            shaderProgram.setInt("screen", 0);
-            quadVAO.bind();
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            renderer.draw(computeProgram, shaderProgram, quadVAO, screenWidth, screenHeight);
         }
     }
 
