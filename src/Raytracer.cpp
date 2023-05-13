@@ -21,8 +21,9 @@
 
 #include <vector>
 
-unsigned int screenWidth = 1600;
-unsigned int screenHeight = 900;
+unsigned int WIDTH = 1600;
+unsigned int HEIGHT = 900;
+float AR = (float)WIDTH / (float)HEIGHT;
 
 GLfloat quadVertices[] =
 {
@@ -57,10 +58,10 @@ int main()
     {    
         // QUAD SETUP
         // Initialise window
-        Window window(screenWidth, screenHeight, "Raytracer");
+        Window window(WIDTH, HEIGHT, "Raytracer");
 
         // Initialise Renderer
-        Renderer renderer(screenWidth, screenHeight);
+        Renderer renderer(WIDTH, HEIGHT);
 
         // Define vertex buffer, vertex array, and index buffer objects
         VertexBufferLayout quadLayout;
@@ -78,33 +79,26 @@ int main()
         shaderProgram.attach(vertexShader);
         shaderProgram.attach(fragmentShader);
         shaderProgram.link();
+        shaderProgram.bind();
 
-        Shader computeShader("../res/shaders/computeShader.glsl", GL_COMPUTE_SHADER);
-        ShaderProgram computeProgram;
-        computeProgram.attach(computeShader);
-        computeProgram.link();
-
-        // SCENE SETUP
-        computeProgram.bind();
-        computeProgram.setFloatArray("vertices", sceneVertices, sizeof(sceneVertices) / sizeof(sceneVertices[0]));
-        computeProgram.setIntArray("indices", sceneIndices, sizeof(sceneIndices) / sizeof(sceneIndices[0]));
-        computeProgram.setInt("numVertices", sizeof(sceneVertices) / sizeof(sceneVertices[0]));
-        computeProgram.setInt("vertexSize", 9);
-        computeProgram.setInt("numIndices", sizeof(sceneIndices) / sizeof(sceneIndices[0]));
+        shaderProgram.setFloatArray("vertices", sceneVertices, sizeof(sceneVertices) / sizeof(sceneVertices[0]));
+        shaderProgram.setIntArray("indices", sceneIndices, sizeof(sceneIndices) / sizeof(sceneIndices[0]));
+        shaderProgram.setInt("numVertices", sizeof(sceneVertices) / sizeof(sceneVertices[0]));
+        shaderProgram.setInt("vertexSize", 9);
+        shaderProgram.setInt("numIndices", sizeof(sceneIndices) / sizeof(sceneIndices[0]));
+        shaderProgram.setFloat("AR", AR);
 
         Camera camera;
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = camera.getViewMatrix();
-        glm::mat4 projection = glm::perspective(glm::radians(80.0f), (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(80.0f), (float)WIDTH/(float)HEIGHT, 0.1f, 100.0f);
         glm::mat4 mvp = projection * view * model;
-        glm::vec3 test = glm::vec4(-0.5f, -0.5f , 0.0f, 1.0f) * mvp;
-        std::cout << glm::to_string(test) << std::endl;
 
-        computeProgram.setMat4("mvp", glm::mat4(1.0f));
+        shaderProgram.setMat4("mvp", glm::mat4(1.0f));
 
         while (window.isOpen())
         {
-            renderer.draw(computeProgram, shaderProgram, quadVAO, screenWidth, screenHeight);
+            renderer.draw(shaderProgram, quadVAO, WIDTH, HEIGHT);
         }
     }
 
