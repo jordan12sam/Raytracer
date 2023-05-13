@@ -34,8 +34,8 @@ void Camera::updateVectors()
     m_up = glm::normalize(glm::cross(m_right, m_front));
 }
 
-void Camera::processKeyboardInput(float deltaTime) {
-    float velocity = deltaTime / 1000000.0f;
+void Camera::processKeyboardInput(int deltaTime) {
+    float velocity = deltaTime * 10e-9;
     if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_W) == GLFW_PRESS)
         m_position += m_front * velocity;
     if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_S) == GLFW_PRESS)
@@ -51,9 +51,12 @@ void Camera::processKeyboardInput(float deltaTime) {
     // TODO: Make program close safely
     if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwTerminate();
+
+    //std::cout << m_position.x << " " << m_position.y << " " << m_position.z << std::endl;
 }
 
 void Camera::processMouseInput(float xoffset, float yoffset, bool constrainPitch) {
+
     xoffset *= m_sensitivity;
     yoffset *= m_sensitivity;
 

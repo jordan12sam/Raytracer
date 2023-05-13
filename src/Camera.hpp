@@ -3,6 +3,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
+
+#include <iostream>
 
 class Camera {
     public:
@@ -10,7 +13,7 @@ class Camera {
             float yaw = -90.0f, float pitch = 0.0f);
         
         glm::mat4 getViewMatrix();
-        void processKeyboardInput(float deltaTime);
+        void processKeyboardInput(int deltaTime);
         void processMouseInput(float xoffset, float yoffset, bool constrainPitch = true);
 
     private:

@@ -19,7 +19,9 @@
 #include "VertexBufferLayout.hpp"
 #include "Cube.hpp"
 
+#include <iostream>
 #include <vector>
+#include <chrono>
 
 unsigned int WIDTH = 1600;
 unsigned int HEIGHT = 900;
@@ -41,10 +43,10 @@ GLuint quadIndices[] =
 
 GLfloat sceneVertices[] =
 {
-	-0.5f, -0.5f, 3.0f,    0.0f, 0.0f,     1.0, 0.0, 0.0, 1.0,
-	-0.5f,  0.5f, 3.0f,    0.0f, 0.5f,     0.0, 1.0, 0.0, 1.0,
-	 0.5f,  0.5f, 3.0f,    0.5f, 0.5f,     1.0, 0.0, 1.0, 1.0,
-	 0.5f, -0.5f, 3.0f,    0.5f, 0.0f,     1.0, 1.0, 1.0, 1.0
+	-0.5f, -0.5f, -3.0f,    0.0f, 0.0f,     1.0, 0.0, 0.0, 1.0,
+	-0.5f,  0.5f, -3.0f,    0.0f, 0.5f,     0.0, 1.0, 0.0, 1.0,
+	 0.5f,  0.5f, -3.0f,    0.5f, 0.5f,     0.0, 0.0, 1.0, 1.0,
+	 0.5f, -0.5f, -3.0f,    0.5f, 0.0f,     0.0, 0.0, 0.0, 1.0
 };
 
 GLint sceneIndices[] =
@@ -91,14 +93,32 @@ int main()
         Camera camera;
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = camera.getViewMatrix();
-        glm::mat4 projection = glm::perspective(glm::radians(80.0f), (float)WIDTH/(float)HEIGHT, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(45.0f, AR, 1.0f, 100000.0f);
         glm::mat4 mvp = projection * view * model;
 
-        shaderProgram.setMat4("mvp", glm::mat4(1.0f));
-
+        auto begin = std::chrono::high_resolution_clock::now();
         while (window.isOpen())
         {
+            auto end = std::chrono::high_resolution_clock::now();
+            auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin).count();
+            auto fps = 1 / nanoseconds / 10e-9;
+
+            double xpos, ypos;
+            glfwGetCursorPos(window.getWindow(), &xpos, &ypos);
+            xpos = xpos - (float)WIDTH/2.0f;
+            ypos = ypos - (float)HEIGHT/2.0f;
+            
+            camera.processKeyboardInput(nanoseconds);
+            //camera.processMouseInput(xpos, ypos);
+
+            view = camera.getViewMatrix();
+            mvp = projection * view * model;
+            shaderProgram.bind();
+            shaderProgram.setMat4("MVP", mvp);
+
             renderer.draw(shaderProgram, quadVAO, WIDTH, HEIGHT);
+
+            begin = std::chrono::high_resolution_clock::now();
         }
     }
 

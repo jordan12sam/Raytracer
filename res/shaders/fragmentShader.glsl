@@ -8,7 +8,7 @@ uniform int indices[1024];
 uniform int numVertices;
 uniform int vertexSize;
 uniform int numIndices;
-uniform mat4 mvp;
+uniform mat4 MVP;
 uniform float AR;
 
 //Möller–Trumbore intersection algorithm
@@ -44,6 +44,30 @@ bool intersectRayTriangle(vec3 rayDirection, vec3 v0, vec3 v1, vec3 v2, out vec3
     }
 
     return false; // intersection is behind the ray
+}
+
+vec3 barycentric(vec3 p, vec3 a, vec3 b, vec3 c) {
+    vec3 v0 = b - a;
+    vec3 v1 = c - a;
+    vec3 v2 = p - a;
+
+    float d00 = dot(v0, v0);
+    float d01 = dot(v0, v1);
+    float d11 = dot(v1, v1);
+    float d20 = dot(v2, v0);
+    float d21 = dot(v2, v1);
+
+    float denom = d00 * d11 - d01 * d01;
+
+    float v = (d11 * d20 - d01 * d21) / denom;
+    float w = (d00 * d21 - d01 * d20) / denom;
+    float u = 1.0 - v - w;
+
+    return vec3(u, v, w);
+}
+
+vec4 interpolateColour(vec3 barycentricCoords, vec4 colourA, vec4 colourB, vec4 colourC) {
+    return colourA * barycentricCoords.x + colourB * barycentricCoords.y + colourC * barycentricCoords.z;
 }
 
 void getPrimitive(  int i,
@@ -86,22 +110,25 @@ void main()
 {
     // Scale y coordinates to [-1.0, 1.0]
     // And x coordinates to [-AR, AR]
-	float x = (2 * UVs.x - 1) * AR;
-	float y = 2 * UVs.y - 1;
+	float x = (2 * UVs.x - 1);
+	float y = (2 * UVs.y - 1);
 
     // Test all primitives for intersection
-    vec3 closestIntersection;
+	// If true, interpolate colour
+	vec4 pixelColour;
+    vec3 closestIntersection = vec3(1000.0);
     bool intersectsAny = false;
 	for(int i = 0; i < numIndices; i += 3)
 	{
-        vec3 pos0, pos1, pos2;
+		vec3 pos0, pos1, pos2;
         vec2 tex0, tex1, tex2;
         vec4 col0, col1, col2;
+
         getPrimitive(i, pos0, pos1, pos2, tex0, tex1, tex2, col0, col1, col2);
 
-        pos0 = (vec4(pos0, 1.0) * mvp).xyz;
-        pos1 = (vec4(pos1, 1.0) * mvp).xyz;
-        pos2 = (vec4(pos2, 1.0) * mvp).xyz;
+        pos0 = (MVP * vec4(pos0, 1.0)).xyz;
+        pos1 = (MVP * vec4(pos1, 1.0)).xyz;
+        pos2 = (MVP * vec4(pos2, 1.0)).xyz;
 
         float fov = 90.0;
         vec3 pixelOrigin = vec3(x, y, 0.5 / tan(radians(fov/2)));
@@ -115,19 +142,16 @@ void main()
             if (length(intersection) < length(closestIntersection))
             {
                 closestIntersection = intersection;
+				vec3 barycentricCoords = barycentric(intersection, pos0, pos1, pos2);
+				pixelColour = interpolateColour(barycentricCoords, col0, col1, col2);
             }
         }
 	}
 
-    // Write colour
-    vec4 pixelColour;
-    if (intersectsAny)
+    // Write background colour
+    if (!intersectsAny)
     {
-        pixelColour = vec4(0.0, 1.0, 0.0, 1.0);
-    }
-    else
-    {
-        pixelColour = vec4(1.0, 0.0, 0.0, 1.0);
+        pixelColour = vec4(0.0, 0.2, 0.2, 1.0);
     }
 
 	FragColor = pixelColour;
