@@ -64,8 +64,19 @@ int main()
         std::vector<GLfloat> sceneVertices;
         std::vector<GLint> sceneIndices;
 
-        Shape cube1(glm::vec3(0.0f, 0.0f, -3.0f));
+        Shape cube1(glm::vec3(1.7f, -2.3f, 3.5f));
         cube1.setCube().push(sceneVertices, sceneIndices);
+        Shape cube2(glm::vec3(-1.8f, 2.9f, -2.1f));
+        cube2.setCube().push(sceneVertices, sceneIndices);
+        Shape cube3(glm::vec3(0.9f, -3.1f, 1.8f));
+        cube3.setCube().push(sceneVertices, sceneIndices);
+        
+        Shape pyramid1(glm::vec3(-3.2f, 3.7f, -1.5f));
+        pyramid1.setPyramid().push(sceneVertices, sceneIndices);
+        Shape pyramid2(glm::vec3(3.0f, 1.2f, 2.3f));
+        pyramid2.setPyramid().push(sceneVertices, sceneIndices);
+        Shape pyramid3(glm::vec3(-2.7f, -3.9f, 0.8f));
+        pyramid3.setPyramid().push(sceneVertices, sceneIndices);
 
         // Define shaders
         Shader vertexShader("../res/shaders/vertexShader.glsl", GL_VERTEX_SHADER);

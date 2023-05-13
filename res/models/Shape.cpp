@@ -8,7 +8,16 @@ Shape::~Shape()
 
 void Shape::push(std::vector<GLfloat> &sceneVertices, std::vector<GLint> &sceneIndices)
 {
-    int numIndices = sceneIndices.size();
+    int numIndices;
+    if (sceneIndices.size() > 0)
+    {
+        numIndices = *std::max_element(sceneIndices.begin(), sceneIndices.end()) + 1;
+    }
+    else
+    {
+        numIndices = 0;
+    }
+
     for (int i = 0; i < indices.size(); i++)
     {
         sceneIndices.push_back(indices[i] + numIndices);

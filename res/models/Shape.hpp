@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 class Shape
 {
@@ -14,6 +15,7 @@ class Shape
         ~Shape();
         void push(std::vector<GLfloat> &sceneVertices, std::vector<GLint> &sceneIndices);
         Shape setCube();
+        Shape setPyramid();
     protected:
         glm::vec3 m_position;
         std::vector<GLfloat> vertices;
