@@ -17,7 +17,7 @@
 #include "Buffer.hpp"
 #include "VertexArray.hpp"
 #include "VertexBufferLayout.hpp"
-#include "Cube.hpp"
+#include "../res/models/Shape.hpp"
 
 #include <iostream>
 #include <vector>
@@ -41,72 +41,6 @@ GLuint quadIndices[] =
 	0, 3, 2
 };
 
-GLfloat sceneVertices[] =
-{
-    // Front face
-    -0.5f, -0.5f, -0.5f,    0.0f, 0.0f,     1.0, 0.0, 0.0, 1.0,     // Vertex 0
-    -0.5f, 0.5f, -0.5f,     0.0f, 1.0f,     0.0, 1.0, 0.0, 1.0,     // Vertex 1
-    0.5f, 0.5f, -0.5f,      1.0f, 1.0f,     0.0, 0.0, 1.0, 1.0,     // Vertex 2
-    0.5f, -0.5f, -0.5f,     1.0f, 0.0f,     0.0, 0.0, 0.0, 1.0,     // Vertex 3
-
-    // Back face
-    -0.5f, -0.5f, 0.5f,     0.0f, 0.0f,     1.0, 0.0, 0.0, 1.0,     // Vertex 4
-    -0.5f,  0.5f, 0.5f,     0.0f, 1.0f,     0.0, 1.0, 0.0, 1.0,     // Vertex 5
-    0.5f,  0.5f, 0.5f,      1.0f, 1.0f,     0.0, 0.0, 1.0, 1.0,     // Vertex 6
-    0.5f, -0.5f, 0.5f,      1.0f, 0.0f,     0.0, 0.0, 0.0, 1.0,     // Vertex 7
-
-    // Left face
-    -0.5f, -0.5f, 0.5f,     0.0f, 0.0f,     1.0, 0.0, 0.0, 1.0,     // Vertex 8
-    -0.5f,  0.5f, 0.5f,     0.0f, 1.0f,     0.0, 1.0, 0.0, 1.0,     // Vertex 9
-    -0.5f,  0.5f, -0.5f,    1.0f, 1.0f,     0.0, 0.0, 1.0, 1.0,     // Vertex 10
-    -0.5f, -0.5f, -0.5f,    1.0f, 0.0f,     0.0, 0.0, 0.0, 1.0,     // Vertex 11
-
-    // Right face
-    0.5f, -0.5f, -0.5f,     0.0f, 0.0f,     1.0, 0.0, 0.0, 1.0,     // Vertex 12
-    0.5f,  0.5f, -0.5f,     0.0f, 1.0f,     0.0, 1.0, 0.0, 1.0,     // Vertex 13
-    0.5f,  0.5f, 0.5f,      1.0f, 1.0f,     0.0, 0.0, 1.0, 1.0,     // Vertex 14
-    0.5f, -0.5f, 0.5f,      1.0f, 0.0f,     0.0, 0.0, 0.0, 1.0,     // Vertex 15
-
-    // Top face
-    -0.5f, 0.5f, -0.5f,     0.0f, 0.0f,     1.0, 0.0, 0.0, 1.0,     // Vertex 16
-    -0.5f, 0.5f, 0.5f,      0.0f, 1.0f,     0.0, 1.0, 0.0, 1.0,     // Vertex 17
-    0.5f,   0.5f, 0.5f,     1.0f, 1.0f,     0.0, 0.0, 1.0, 1.0,     // Vertex 18
-    0.5f,   0.5f, -0.5f,    1.0f, 0.0f,     0.0, 0.0, 0.0, 1.0,     // Vertex 19
-
-    // Bottom face
-    -0.5f, -0.5f, -0.5f,    0.0f, 0.0f,     1.0, 0.0, 0.0, 1.0,     // Vertex 20
-    -0.5f, -0.5f, 0.5f,     0.0f, 1.0f,     0.0, 1.0, 0.0, 1.0,     // Vertex 21
-    0.5f,  -0.5f, 0.5f,     1.0f, 1.0f,     0.0, 0.0, 1.0, 1.0,     // Vertex 22
-    0.5f,  -0.5f, -0.5f,    1.0f, 0.0f,     0.0, 0.0, 0.0, 1.0      // Vertex 23
-};
-
-GLint sceneIndices[] =
-{
-    // Front face
-    0, 1, 2,
-    2, 3, 0,
-
-    // Back face
-    4, 5, 6,
-    6, 7, 4,
-
-    // Left face
-    8, 9, 10,
-    10, 11, 8,
-
-    // Right face
-    12, 13, 14,
-    14, 15, 12,
-
-    // Top face
-    16, 17, 18,
-    18, 19, 16,
-
-    // Bottom face
-    20, 21, 22,
-    22, 23, 20
-};
-
 int main()
 {
     {    
@@ -126,6 +60,13 @@ int main()
         quadVAO.addBuffer(quadVBO, quadLayout);
         IndexBuffer quadIBO(quadIndices, 6);
 
+        // Initialise scene
+        std::vector<GLfloat> sceneVertices;
+        std::vector<GLint> sceneIndices;
+
+        Shape cube1(glm::vec3(0.0f, 0.0f, -3.0f));
+        cube1.setCube().push(sceneVertices, sceneIndices);
+
         // Define shaders
         Shader vertexShader("../res/shaders/vertexShader.glsl", GL_VERTEX_SHADER);
         Shader fragmentShader("../res/shaders/fragmentShader.glsl", GL_FRAGMENT_SHADER);
@@ -135,11 +76,11 @@ int main()
         shaderProgram.link();
         shaderProgram.bind();
 
-        shaderProgram.setFloatArray("vertices", sceneVertices, sizeof(sceneVertices) / sizeof(sceneVertices[0]));
-        shaderProgram.setIntArray("indices", sceneIndices, sizeof(sceneIndices) / sizeof(sceneIndices[0]));
-        shaderProgram.setInt("numVertices", sizeof(sceneVertices) / sizeof(sceneVertices[0]));
+        shaderProgram.setFloatArray("vertices", &sceneVertices[0], (int)sceneVertices.size());
+        shaderProgram.setIntArray("indices", &sceneIndices[0], (int)sceneIndices.size());
+        shaderProgram.setInt("numVertices", (int)sceneVertices.size());
         shaderProgram.setInt("vertexSize", 9);
-        shaderProgram.setInt("numIndices", sizeof(sceneIndices) / sizeof(sceneIndices[0]));
+        shaderProgram.setInt("numIndices", (int)sceneIndices.size());
         shaderProgram.setFloat("AR", AR);
 
         Camera camera;

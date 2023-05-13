@@ -73,6 +73,8 @@ target_link_libraries(IMGUI
 file(GLOB all_SRCS
         "${PROJECT_SOURCE_DIR}/src/*.cpp"
         "${PROJECT_SOURCE_DIR}/src/*.hpp"
+        "${PROJECT_SOURCE_DIR}/res/models/*.hpp"
+        "${PROJECT_SOURCE_DIR}/res/models/*.cpp"
         )
 add_executable(Raytracer ${all_SRCS})
 
