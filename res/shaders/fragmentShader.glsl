@@ -1,6 +1,6 @@
 #version 460 core
 
-in vec2 UVs;
+in vec2 screen;
 out vec4 FragColor;
 
 uniform float vertices[1024];
@@ -70,6 +70,10 @@ vec4 interpolateColour(vec3 barycentricCoords, vec4 colourA, vec4 colourB, vec4 
     return colourA * barycentricCoords.x + colourB * barycentricCoords.y + colourC * barycentricCoords.z;
 }
 
+vec2 interpolateTexture(vec3 barycentricCoords, vec2 textureA, vec2 textureB, vec2 textureC) {
+    return textureA * barycentricCoords.x + textureB * barycentricCoords.y + textureC * barycentricCoords.z;
+}
+
 void getPrimitive(  int i,
                     out vec3 pos0, out vec3 pos1, out vec3 pos2,
                     out vec2 tex0, out vec2 tex1, out vec2 tex2,
@@ -110,8 +114,8 @@ void main()
 {
     // Scale y coordinates to [-1.0, 1.0]
     // And x coordinates to [-AR, AR]
-	float x = (2 * UVs.x - 1);
-	float y = (2 * UVs.y - 1);
+	float x = (2 * screen.x - 1);
+	float y = (2 * screen.y - 1);
 
     // Test all primitives for intersection
 	// If true, interpolate colour
@@ -143,7 +147,16 @@ void main()
             {
                 closestIntersection = intersection;
 				vec3 barycentricCoords = barycentric(intersection, pos0, pos1, pos2);
-				pixelColour = interpolateColour(barycentricCoords, col0, col1, col2);
+				vec2 UV = interpolateTexture(barycentricCoords, tex0, tex1, tex2);
+				if(UV.x < 0.02 || UV.x > 0.98 || UV.y < 0.02 || UV.y > 0.98 )
+				{
+					pixelColour = vec4(0.0, 0.0, 0.0, 1.0);
+				}
+				else
+				{
+					pixelColour = interpolateColour(barycentricCoords, col0, col1, col2);
+				}
+
             }
         }
 	}
