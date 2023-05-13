@@ -68,7 +68,7 @@ Shape Shape::setCube()
         22, 23, 20
     };
 
-    this->translate();
+    this->transform();
 
     return *this;
 }

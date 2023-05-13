@@ -11,14 +11,15 @@
 class Shape
 {
     public:
-        Shape(glm::vec3 position): m_position(position){};
+        Shape(glm::vec3 position, float scale): m_position(position), m_scale(scale){};
         ~Shape();
         void push(std::vector<GLfloat> &sceneVertices, std::vector<GLint> &sceneIndices);
         Shape setCube();
         Shape setPyramid();
     protected:
         glm::vec3 m_position;
+        float m_scale;
         std::vector<GLfloat> vertices;
         std::vector<GLint> indices;
-        void translate(); 
+        void transform(); 
 };

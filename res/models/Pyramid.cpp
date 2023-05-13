@@ -27,7 +27,7 @@ Shape Shape::setPyramid()
         3, 0, 4
     };
 
-    this->translate();
+    this->transform();
 
     return *this;
 }
