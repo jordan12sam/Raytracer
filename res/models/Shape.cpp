@@ -6,7 +6,7 @@ Shape::~Shape()
     m_indices = std::vector<GLint>();
 }
 
-void Shape::push(std::vector<GLfloat> &sceneVertices, std::vector<GLint> &sceneIndices)
+void Shape::push(std::vector<GLfloat> &sceneVertices, std::vector<GLint> &sceneIndices, std::vector<GLfloat> &sceneNormals)
 {
     int numIndices;
     if (sceneIndices.size() > 0)
@@ -26,6 +26,11 @@ void Shape::push(std::vector<GLfloat> &sceneVertices, std::vector<GLint> &sceneI
     for (int i = 0; i < m_vertices.size(); i++)
     {
         sceneVertices.push_back(m_vertices[i]);
+    }
+
+    for (int i = 0; i < m_normals.size(); i ++)
+    {
+        sceneNormals.push_back(m_normals[i]);
     }
 }
 

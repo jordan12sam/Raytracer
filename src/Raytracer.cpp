@@ -63,20 +63,21 @@ int main()
         // Initialise scene
         std::vector<GLfloat> sceneVertices;
         std::vector<GLint> sceneIndices;
+        std::vector<GLfloat> sceneNormals;
 
         Shape cube1(glm::vec3(1.7f, -2.3f, 4.0f), 1.0f, glm::vec4(0.6f, 0.2f, 0.8f, 1.0f), 0.0f);
-        cube1.setCube().push(sceneVertices, sceneIndices);
+        cube1.setCube().push(sceneVertices, sceneIndices, sceneNormals);
         Shape cube2(glm::vec3(-1.8f, 2.9f, -2.1f), 2.0f, glm::vec4(0.1f, 0.7f, 0.4f, 1.0f), 0.0f);
-        cube2.setCube().push(sceneVertices, sceneIndices);
+        cube2.setCube().push(sceneVertices, sceneIndices, sceneNormals);
         Shape cube3(glm::vec3(0.9f, -3.1f, 1.8f), 3.0f, glm::vec4(0.9f, 0.5f, 0.1f, 1.0f), 0.0f);
-        cube3.setCube().push(sceneVertices, sceneIndices);
+        cube3.setCube().push(sceneVertices, sceneIndices, sceneNormals);
 
         Shape pyramid1(glm::vec3(-3.8f, 3.7f, -1.5f), 1.0f, glm::vec4(0.3f, 0.9f, 0.2f, 1.0f), 0.0f);
-        pyramid1.setPyramid().push(sceneVertices, sceneIndices);
+        pyramid1.setPyramid().push(sceneVertices, sceneIndices, sceneNormals);
         Shape pyramid2(glm::vec3(3.0f, 1.2f, 2.3f), 2.0f, glm::vec4(0.8f, 0.4f, 0.6f, 1.0f), 0.0f);
-        pyramid2.setPyramid().push(sceneVertices, sceneIndices);
+        pyramid2.setPyramid().push(sceneVertices, sceneIndices, sceneNormals);
         Shape pyramid3(glm::vec3(-2.7f, -3.9f, 0.8f), 3.0f, glm::vec4(0.2f, 0.7f, 0.9f, 1.0f), 0.0f);
-        pyramid3.setPyramid().push(sceneVertices, sceneIndices);
+        pyramid3.setPyramid().push(sceneVertices, sceneIndices, sceneNormals);
 
         // Define shaders
         Shader vertexShader("../res/shaders/vertexShader.glsl", GL_VERTEX_SHADER);
@@ -89,6 +90,7 @@ int main()
 
         shaderProgram.setFloatArray("vertices", &sceneVertices[0], (int)sceneVertices.size());
         shaderProgram.setIntArray("indices", &sceneIndices[0], (int)sceneIndices.size());
+        shaderProgram.setFloatArray("normals", &sceneNormals[0], (int)sceneNormals.size());
         shaderProgram.setInt("numVertices", (int)sceneVertices.size());
         shaderProgram.setInt("vertexSize", 10);
         shaderProgram.setInt("numIndices", (int)sceneIndices.size());

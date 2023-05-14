@@ -5,6 +5,7 @@ out vec4 FragColor;
 
 uniform float vertices[1024];
 uniform int indices[1024];
+uniform float normals[1024];
 uniform int numVertices;
 uniform int vertexSize;
 uniform int numIndices;
@@ -79,11 +80,14 @@ float interpolateAlbedo(vec3 barycentricCoords, float albedoA, float albedoB, fl
 }
 
 void getPrimitive(  int i,
+                    out vec3 norm,
                     out vec3 pos0, out vec3 pos1, out vec3 pos2,
                     out vec2 tex0, out vec2 tex1, out vec2 tex2,
                     out vec4 col0, out vec4 col1, out vec4 col2,
                     out float alb0, out float alb1, out float alb2)
 {
+    norm = vec3(normals[i], normals[i + 1], normals[i + 2]);
+
     pos0 = vec3(vertices[indices[i]     * vertexSize    ],
                 vertices[indices[i]     * vertexSize + 1],
                 vertices[indices[i]     * vertexSize + 2]);
@@ -127,18 +131,19 @@ void main()
 	float y = (2 * screen.y - 1);
 
     // Test all primitives for intersection
-	// If true, interpolate colour
+	// If true, interpolate vertex values
 	vec4 pixelColour;
     vec3 closestIntersection = vec3(1000.0);
     bool intersectsAny = false;
 	for(int i = 0; i < numIndices; i += 3)
 	{
+        vec3 norm;
 		vec3 pos0, pos1, pos2;
         vec2 tex0, tex1, tex2;
         vec4 col0, col1, col2;
         float alb0, alb1, alb2;
 
-        getPrimitive(i, pos0, pos1, pos2, tex0, tex1, tex2, col0, col1, col2, alb0, alb1, alb2);
+        getPrimitive(i, norm, pos0, pos1, pos2, tex0, tex1, tex2, col0, col1, col2, alb0, alb1, alb2);
 
         pos0 = (MVP * vec4(pos0, 1.0)).xyz;
         pos1 = (MVP * vec4(pos1, 1.0)).xyz;
@@ -166,7 +171,7 @@ void main()
 				}
 				else
 				{
-					pixelColour = interpolateColour(barycentricCoords, col0, col1, col2);
+					pixelColour = vec4(norm * 0.5 + 0.5, 1.0);
 				}
 
             }

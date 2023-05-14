@@ -36,3 +36,6 @@ build/
 
 # VSCode Settings
 .vscode/
+
+# Utility scripts
+util/
