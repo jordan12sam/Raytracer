@@ -11,7 +11,8 @@
 class Shape
 {
     public:
-        Shape(glm::vec3 position, float scale): m_position(position), m_scale(scale){};
+        Shape(glm::vec3 position, float scale, glm::vec4 colour)
+        : m_position(position), m_scale(scale), m_colour(colour){};
         ~Shape();
         void push(std::vector<GLfloat> &sceneVertices, std::vector<GLint> &sceneIndices);
         Shape setCube();
@@ -19,7 +20,8 @@ class Shape
     protected:
         glm::vec3 m_position;
         float m_scale;
-        std::vector<GLfloat> vertices;
-        std::vector<GLint> indices;
+        glm::vec4 m_colour;
+        std::vector<GLfloat> m_vertices;
+        std::vector<GLint> m_indices;
         void transform(); 
 };

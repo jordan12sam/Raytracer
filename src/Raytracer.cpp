@@ -64,18 +64,18 @@ int main()
         std::vector<GLfloat> sceneVertices;
         std::vector<GLint> sceneIndices;
 
-        Shape cube1(glm::vec3(1.7f, -2.3f, 4.0f), 1.0f);
+        Shape cube1(glm::vec3(1.7f, -2.3f, 4.0f), 1.0f, glm::vec4(0.6f, 0.2f, 0.8f, 1.0f));
         cube1.setCube().push(sceneVertices, sceneIndices);
-        Shape cube2(glm::vec3(-1.8f, 2.9f, -2.1f), 2.0f);
+        Shape cube2(glm::vec3(-1.8f, 2.9f, -2.1f), 2.0f, glm::vec4(0.1f, 0.7f, 0.4f, 1.0f));
         cube2.setCube().push(sceneVertices, sceneIndices);
-        Shape cube3(glm::vec3(0.9f, -3.1f, 1.8f), 3.0f);
+        Shape cube3(glm::vec3(0.9f, -3.1f, 1.8f), 3.0f, glm::vec4(0.9f, 0.5f, 0.1f, 1.0f));
         cube3.setCube().push(sceneVertices, sceneIndices);
 
-        Shape pyramid1(glm::vec3(-3.8f, 3.7f, -1.5f), 1.0f);
+        Shape pyramid1(glm::vec3(-3.8f, 3.7f, -1.5f), 1.0f, glm::vec4(0.3f, 0.9f, 0.2f, 1.0f));
         pyramid1.setPyramid().push(sceneVertices, sceneIndices);
-        Shape pyramid2(glm::vec3(3.0f, 1.2f, 2.3f), 2.0f);
+        Shape pyramid2(glm::vec3(3.0f, 1.2f, 2.3f), 2.0f, glm::vec4(0.8f, 0.4f, 0.6f, 1.0f));
         pyramid2.setPyramid().push(sceneVertices, sceneIndices);
-        Shape pyramid3(glm::vec3(-2.7f, -3.9f, 0.8f), 3.0f);
+        Shape pyramid3(glm::vec3(-2.7f, -3.9f, 0.8f), 3.0f, glm::vec4(0.2f, 0.7f, 0.9f, 1.0f));
         pyramid3.setPyramid().push(sceneVertices, sceneIndices);
 
         // Define shaders

@@ -148,7 +148,7 @@ void main()
                 closestIntersection = intersection;
 				vec3 barycentricCoords = barycentric(intersection, pos0, pos1, pos2);
 				vec2 UV = interpolateTexture(barycentricCoords, tex0, tex1, tex2);
-				if(UV.x < 0.02 || UV.x > 0.98 || UV.y < 0.02 || UV.y > 0.98 )
+				if(barycentricCoords.x < 0.01 || barycentricCoords.y < 0.01 || barycentricCoords.z < 0.01 )
 				{
 					pixelColour = vec4(0.0, 0.0, 0.0, 1.0);
 				}
