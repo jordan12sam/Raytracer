@@ -10,7 +10,12 @@ uniform int numVertices;
 uniform int vertexSize;
 uniform int numIndices;
 uniform mat4 MVP;
+uniform mat4 normalMVP;
 uniform float AR;
+
+float rand(vec2 co){
+    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+}
 
 //Möller–Trumbore intersection algorithm
 bool intersectRayTriangle(vec3 rayDirection, vec3 v0, vec3 v1, vec3 v2, out vec3 intersection)
@@ -123,6 +128,60 @@ void getPrimitive(  int i,
     alb2 =      vertices[indices[i + 2] * vertexSize + 9];
 }
 
+void reflection(out vec3 rayOrigin, out vec3 rayDirection, out vec4 rayColour)
+{
+    //Intersection information
+    vec3 closestIntersection = vec3(10000.0);
+    bool intersectsAny = false;
+    vec4 colour = vec4(0.0, 0.2, 0.2, 1.0);;
+    float albedo;
+    vec3 normal;
+
+    //Primitive information
+    vec3 norm;
+    vec3 pos0, pos1, pos2;
+    vec2 tex0, tex1, tex2;
+    vec4 col0, col1, col2;
+    float alb0, alb1, alb2;
+
+    //For each primitive
+	for(int i = 0; i < numIndices; i += 3)
+	{
+        //Get primitive info
+        getPrimitive(i, norm, pos0, pos1, pos2, tex0, tex1, tex2, col0, col1, col2, alb0, alb1, alb2);
+
+
+        //Transform primitive into model view
+        pos0 = (MVP * vec4(pos0, 1.0)).xyz;
+        pos1 = (MVP * vec4(pos1, 1.0)).xyz;
+        pos2 = (MVP * vec4(pos2, 1.0)).xyz;
+        norm = (normalMVP * vec4(norm, 1.0)).xyz;
+
+        //Checks for intersection
+        vec3 intersection;
+        bool intersects = intersectRayTriangle(rayDirection, pos0,  pos1, pos2, intersection);
+
+        //If this is the closest intersection, then update values
+        if (intersects && length(intersection) < length(closestIntersection))
+        {
+            intersectsAny = true;
+            closestIntersection = intersection;
+
+            vec3 barycentricCoords = barycentric(intersection, pos0, pos1, pos2);
+            //colour = interpolateColour(barycentricCoords, col0, col1, col2);
+            albedo = interpolateAlbedo(barycentricCoords, alb0, alb1, alb2);
+            normal = norm;
+
+            colour = vec4(normal * 0.5 + 0.5, 1.0);
+        }
+	}
+
+    //Return ray information
+    rayDirection = reflect(rayDirection, normal);
+    rayOrigin = closestIntersection;
+    rayColour = colour;
+}
+
 void main()
 {
     // Scale y coordinates to [-1.0, 1.0]
@@ -130,59 +189,16 @@ void main()
 	float x = (2 * screen.x - 1);
 	float y = (2 * screen.y - 1);
 
-    // Test all primitives for intersection
-	// If true, interpolate vertex values
-	vec4 pixelColour;
-    vec3 closestIntersection = vec3(1000.0);
-    bool intersectsAny = false;
-	for(int i = 0; i < numIndices; i += 3)
-	{
-        vec3 norm;
-		vec3 pos0, pos1, pos2;
-        vec2 tex0, tex1, tex2;
-        vec4 col0, col1, col2;
-        float alb0, alb1, alb2;
+    // Initialise ray properties
+    float fov = 90.0;
+    vec3 rayOrigin = vec3(0.0, 0.0, 0.0);
+    vec3 pixelOrigin = vec3(x, y, 0.5 / tan(radians(fov/2)));
+    vec3 rayDirection = normalize(pixelOrigin);
+    vec4 rayColour;
 
-        getPrimitive(i, norm, pos0, pos1, pos2, tex0, tex1, tex2, col0, col1, col2, alb0, alb1, alb2);
+    // Calculate pixel colour
+    reflection(rayOrigin, rayDirection, rayColour);
 
-        pos0 = (MVP * vec4(pos0, 1.0)).xyz;
-        pos1 = (MVP * vec4(pos1, 1.0)).xyz;
-        pos2 = (MVP * vec4(pos2, 1.0)).xyz;
-
-        float fov = 90.0;
-        vec3 pixelOrigin = vec3(x, y, 0.5 / tan(radians(fov/2)));
-        vec3 rayDirection = normalize(pixelOrigin);
-        vec3 intersection;
-        bool intersects = intersectRayTriangle(rayDirection, pos0,  pos1, pos2, intersection);
-
-        if (intersects)
-        {
-            intersectsAny = true;
-            if (length(intersection) < length(closestIntersection))
-            {
-                closestIntersection = intersection;
-				vec3 barycentricCoords = barycentric(intersection, pos0, pos1, pos2);
-                vec4 col = interpolateColour(barycentricCoords, col0, col1, col2);
-				vec2 tex = interpolateTexture(barycentricCoords, tex0, tex1, tex2);
-                float alb = interpolateAlbedo(barycentricCoords, alb0, alb1, alb2);
-				if(barycentricCoords.x < 0.01 || barycentricCoords.y < 0.01 || barycentricCoords.z < 0.01 )
-				{
-					pixelColour = vec4(0.0, 0.0, 0.0, 1.0);
-				}
-				else
-				{
-					pixelColour = vec4(norm * 0.5 + 0.5, 1.0);
-				}
-
-            }
-        }
-	}
-
-    // Write background colour
-    if (!intersectsAny)
-    {
-        pixelColour = vec4(0.0, 0.2, 0.2, 1.0);
-    }
-
-	FragColor = pixelColour;
+    // Draw colour
+	FragColor = rayColour;
 }

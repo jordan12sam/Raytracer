@@ -99,8 +99,10 @@ int main()
         Camera camera;
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = camera.getViewMatrix();
+        glm::mat4 modelView = view * model;
         glm::mat4 projection = glm::perspective(45.0f, AR, 1.0f, 100000.0f);
-        glm::mat4 mvp = projection * view * model;
+        glm::mat4 mvp = projection * modelView;
+        glm::mat4 normalMvp = projection * transpose(inverse(modelView));
 
         auto begin = std::chrono::high_resolution_clock::now();
         while (window.isOpen())
@@ -119,8 +121,11 @@ int main()
 
             view = camera.getViewMatrix();
             mvp = projection * view * model;
+            glm::mat4 normalMvp = projection * transpose(inverse(modelView));
+
             shaderProgram.bind();
             shaderProgram.setMat4("MVP", mvp);
+            shaderProgram.setMat4("normalMVP", normalMvp);
 
             renderer.draw(shaderProgram, quadVAO, WIDTH, HEIGHT);
 

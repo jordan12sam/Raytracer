@@ -15,6 +15,7 @@ class Camera {
         glm::mat4 getViewMatrix();
         void processKeyboardInput(int deltaTime);
         void processMouseInput(float xoffset, float yoffset, bool constrainPitch = true);
+        glm::vec3 getPosition();
 
     private:
         void updateVectors();
