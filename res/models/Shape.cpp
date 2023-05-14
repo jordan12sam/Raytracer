@@ -12,6 +12,9 @@ void Shape::push(std::vector<GLfloat> &sceneVertices, std::vector<GLint> &sceneI
     if (sceneIndices.size() > 0)
     {
         numIndices = *std::max_element(sceneIndices.begin(), sceneIndices.end()) + 1;
+        std::cout << numIndices << std::endl;
+        std::cout << sceneIndices.size() << std::endl;
+        std::cout << std::endl;
     }
     else
     {

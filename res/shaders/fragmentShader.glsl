@@ -150,7 +150,6 @@ void reflection(out vec3 rayOrigin, out vec3 rayDirection, out vec4 rayColour)
         //Get primitive info
         getPrimitive(i, norm, pos0, pos1, pos2, tex0, tex1, tex2, col0, col1, col2, alb0, alb1, alb2);
 
-
         //Transform primitive into model view
         pos0 = (MVP * vec4(pos0, 1.0)).xyz;
         pos1 = (MVP * vec4(pos1, 1.0)).xyz;
