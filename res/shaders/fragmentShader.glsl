@@ -74,10 +74,15 @@ vec2 interpolateTexture(vec3 barycentricCoords, vec2 textureA, vec2 textureB, ve
     return textureA * barycentricCoords.x + textureB * barycentricCoords.y + textureC * barycentricCoords.z;
 }
 
+float interpolateAlbedo(vec3 barycentricCoords, float albedoA, float albedoB, float albedoC) {
+    return albedoA * barycentricCoords.x + albedoB * barycentricCoords.y + albedoC * barycentricCoords.z;
+}
+
 void getPrimitive(  int i,
                     out vec3 pos0, out vec3 pos1, out vec3 pos2,
                     out vec2 tex0, out vec2 tex1, out vec2 tex2,
-                    out vec4 col0, out vec4 col1, out vec4 col2)
+                    out vec4 col0, out vec4 col1, out vec4 col2,
+                    out float alb0, out float alb1, out float alb2)
 {
     pos0 = vec3(vertices[indices[i]     * vertexSize    ],
                 vertices[indices[i]     * vertexSize + 1],
@@ -108,6 +113,10 @@ void getPrimitive(  int i,
                 vertices[indices[i + 2] * vertexSize + 6],
                 vertices[indices[i + 2] * vertexSize + 7],
                 vertices[indices[i + 2] * vertexSize + 8]);
+    
+    alb0 =      vertices[indices[i]     * vertexSize + 9];
+    alb1 =      vertices[indices[i + 1] * vertexSize + 9];
+    alb2 =      vertices[indices[i + 2] * vertexSize + 9];
 }
 
 void main()
@@ -127,8 +136,9 @@ void main()
 		vec3 pos0, pos1, pos2;
         vec2 tex0, tex1, tex2;
         vec4 col0, col1, col2;
+        float alb0, alb1, alb2;
 
-        getPrimitive(i, pos0, pos1, pos2, tex0, tex1, tex2, col0, col1, col2);
+        getPrimitive(i, pos0, pos1, pos2, tex0, tex1, tex2, col0, col1, col2, alb0, alb1, alb2);
 
         pos0 = (MVP * vec4(pos0, 1.0)).xyz;
         pos1 = (MVP * vec4(pos1, 1.0)).xyz;
@@ -147,7 +157,9 @@ void main()
             {
                 closestIntersection = intersection;
 				vec3 barycentricCoords = barycentric(intersection, pos0, pos1, pos2);
-				vec2 UV = interpolateTexture(barycentricCoords, tex0, tex1, tex2);
+                vec4 col = interpolateColour(barycentricCoords, col0, col1, col2);
+				vec2 tex = interpolateTexture(barycentricCoords, tex0, tex1, tex2);
+                float alb = interpolateAlbedo(barycentricCoords, alb0, alb1, alb2);
 				if(barycentricCoords.x < 0.01 || barycentricCoords.y < 0.01 || barycentricCoords.z < 0.01 )
 				{
 					pixelColour = vec4(0.0, 0.0, 0.0, 1.0);

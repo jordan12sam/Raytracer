@@ -4,36 +4,36 @@ Shape Shape::setCube()
 {
     m_vertices =
     {
-        //Position              //Texture       /Colour
-        -0.5f, -0.5f, -0.5f,    0.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,   
-        -0.5f, 0.5f, -0.5f,     0.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,    
-        0.5f, 0.5f, -0.5f,      1.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,     
-        0.5f, -0.5f, -0.5f,     1.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,   
+        //Position              //Texture       //Colour                                        //Albedo
+        -0.5f, -0.5f, -0.5f,    0.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,
+        -0.5f, 0.5f, -0.5f,     0.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,    
+        0.5f, 0.5f, -0.5f,      1.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,     
+        0.5f, -0.5f, -0.5f,     1.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,   
 
-        -0.5f, -0.5f, 0.5f,     0.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,       
-        -0.5f,  0.5f, 0.5f,     0.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,     
-        0.5f,  0.5f, 0.5f,      1.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,   
-        0.5f, -0.5f, 0.5f,      1.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,       
+        -0.5f, -0.5f, 0.5f,     0.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,       
+        -0.5f,  0.5f, 0.5f,     0.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,     
+        0.5f,  0.5f, 0.5f,      1.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,   
+        0.5f, -0.5f, 0.5f,      1.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,       
 
-        -0.5f, -0.5f, 0.5f,     0.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,     
-        -0.5f,  0.5f, 0.5f,     0.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,    
-        -0.5f,  0.5f, -0.5f,    1.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,      
-        -0.5f, -0.5f, -0.5f,    1.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,   
+        -0.5f, -0.5f, 0.5f,     0.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,     
+        -0.5f,  0.5f, 0.5f,     0.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,    
+        -0.5f,  0.5f, -0.5f,    1.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,      
+        -0.5f, -0.5f, -0.5f,    1.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,   
 
-        0.5f, -0.5f, -0.5f,     0.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,      
-        0.5f,  0.5f, -0.5f,     0.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,        
-        0.5f,  0.5f, 0.5f,      1.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,     
-        0.5f, -0.5f, 0.5f,      1.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,      
+        0.5f, -0.5f, -0.5f,     0.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,      
+        0.5f,  0.5f, -0.5f,     0.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,        
+        0.5f,  0.5f, 0.5f,      1.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,     
+        0.5f, -0.5f, 0.5f,      1.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,      
 
-        -0.5f, 0.5f, -0.5f,     0.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,     
-        -0.5f, 0.5f, 0.5f,      0.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,      
-        0.5f,   0.5f, 0.5f,     1.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,     
-        0.5f,   0.5f, -0.5f,    1.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,   
+        -0.5f, 0.5f, -0.5f,     0.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,     
+        -0.5f, 0.5f, 0.5f,      0.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,      
+        0.5f,   0.5f, 0.5f,     1.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,     
+        0.5f,   0.5f, -0.5f,    1.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,   
 
-        -0.5f, -0.5f, -0.5f,    0.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,       
-        -0.5f, -0.5f, 0.5f,     0.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,       
-        0.5f,  -0.5f, 0.5f,     1.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,     
-        0.5f,  -0.5f, -0.5f,    1.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w   
+        -0.5f, -0.5f, -0.5f,    0.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,       
+        -0.5f, -0.5f, 0.5f,     0.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,       
+        0.5f,  -0.5f, 0.5f,     1.0f, 1.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo,     
+        0.5f,  -0.5f, -0.5f,    1.0f, 0.0f,     m_colour.x,m_colour.y, m_colour.z, m_colour.w,  m_albedo  
     };
 
     m_indices =
