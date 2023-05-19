@@ -13,6 +13,28 @@ uniform mat4 MVP;
 uniform mat4 normalMVP;
 uniform float AR;
 
+struct HitInfo {
+    bool didHit;
+    float dist;
+    vec3 hitPosition;
+    vec3 normal;
+};
+
+struct Primitive {
+    HitInfo hitInfo;
+    vec3 norm;
+    vec3 pos0, pos1, pos2;
+    vec2 tex0, tex1, tex2;
+    vec4 col0, col1, col2;
+    float alb0, alb1, alb2;
+};
+
+struct Ray {
+    vec3 origin;
+    vec3 direction;
+    vec4 colour;
+};
+
 float rand(vec2 co){
     return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
 }
@@ -85,50 +107,46 @@ float interpolateAlbedo(vec3 barycentricCoords, float albedoA, float albedoB, fl
 }
 
 void getPrimitive(  int i,
-                    out vec3 norm,
-                    out vec3 pos0, out vec3 pos1, out vec3 pos2,
-                    out vec2 tex0, out vec2 tex1, out vec2 tex2,
-                    out vec4 col0, out vec4 col1, out vec4 col2,
-                    out float alb0, out float alb1, out float alb2)
+                    out Primitive triangle)
 {
-    norm = vec3(normals[i], normals[i + 1], normals[i + 2]);
+    triangle.norm = vec3(normals[i], normals[i + 1], normals[i + 2]);
 
-    pos0 = vec3(vertices[indices[i]     * vertexSize    ],
-                vertices[indices[i]     * vertexSize + 1],
-                vertices[indices[i]     * vertexSize + 2]);
-    pos1 = vec3(vertices[indices[i + 1] * vertexSize    ],
-                vertices[indices[i + 1] * vertexSize + 1],
-                vertices[indices[i + 1] * vertexSize + 2]);
-    pos2 = vec3(vertices[indices[i + 2] * vertexSize    ],
-                vertices[indices[i + 2] * vertexSize + 1],
-                vertices[indices[i + 2] * vertexSize + 2]);
+    triangle.pos0 = vec3(vertices[indices[i]     * vertexSize    ],
+                        vertices[indices[i]     * vertexSize + 1],
+                        vertices[indices[i]     * vertexSize + 2]);
+    triangle.pos1 = vec3(vertices[indices[i + 1] * vertexSize    ],
+                        vertices[indices[i + 1] * vertexSize + 1],
+                        vertices[indices[i + 1] * vertexSize + 2]);
+    triangle.pos2 = vec3(vertices[indices[i + 2] * vertexSize    ],
+                        vertices[indices[i + 2] * vertexSize + 1],
+                        vertices[indices[i + 2] * vertexSize + 2]);
 
-    tex0 = vec2(vertices[indices[i]     * vertexSize + 3],
-                vertices[indices[i]     * vertexSize + 4]);
-    tex1 = vec2(vertices[indices[i + 1] * vertexSize + 3],
-                vertices[indices[i + 1] * vertexSize + 4]);
-    tex2 = vec2(vertices[indices[i + 2] * vertexSize + 3],
-                vertices[indices[i + 2] * vertexSize + 4]);
+    triangle.tex0 = vec2(vertices[indices[i]     * vertexSize + 3],
+                        vertices[indices[i]     * vertexSize + 4]);
+    triangle.tex1 = vec2(vertices[indices[i + 1] * vertexSize + 3],
+                        vertices[indices[i + 1] * vertexSize + 4]);
+    triangle.tex2 = vec2(vertices[indices[i + 2] * vertexSize + 3],
+                        vertices[indices[i + 2] * vertexSize + 4]);
 
-    col0 = vec4(vertices[indices[i]     * vertexSize + 5],
-                vertices[indices[i]     * vertexSize + 6],
-                vertices[indices[i]     * vertexSize + 7],
-                vertices[indices[i]     * vertexSize + 8]);
-    col1 = vec4(vertices[indices[i + 1] * vertexSize + 5],
-                vertices[indices[i + 1] * vertexSize + 6],
-                vertices[indices[i + 1] * vertexSize + 7],
-                vertices[indices[i + 1] * vertexSize + 8]);
-    col2 = vec4(vertices[indices[i + 2] * vertexSize + 5],
-                vertices[indices[i + 2] * vertexSize + 6],
-                vertices[indices[i + 2] * vertexSize + 7],
-                vertices[indices[i + 2] * vertexSize + 8]);
+    triangle.col0 = vec4(vertices[indices[i]     * vertexSize + 5],
+                        vertices[indices[i]     * vertexSize + 6],
+                        vertices[indices[i]     * vertexSize + 7],
+                        vertices[indices[i]     * vertexSize + 8]);
+    triangle.col1 = vec4(vertices[indices[i + 1] * vertexSize + 5],
+                        vertices[indices[i + 1] * vertexSize + 6],
+                        vertices[indices[i + 1] * vertexSize + 7],
+                        vertices[indices[i + 1] * vertexSize + 8]);
+    triangle.col2 = vec4(vertices[indices[i + 2] * vertexSize + 5],
+                        vertices[indices[i + 2] * vertexSize + 6],
+                        vertices[indices[i + 2] * vertexSize + 7],
+                        vertices[indices[i + 2] * vertexSize + 8]);
     
-    alb0 =      vertices[indices[i]     * vertexSize + 9];
-    alb1 =      vertices[indices[i + 1] * vertexSize + 9];
-    alb2 =      vertices[indices[i + 2] * vertexSize + 9];
+    triangle.alb0 =      vertices[indices[i]     * vertexSize + 9];
+    triangle.alb1 =      vertices[indices[i + 1] * vertexSize + 9];
+    triangle.alb2 =      vertices[indices[i + 2] * vertexSize + 9];
 }
 
-void reflection(out vec3 rayOrigin, out vec3 rayDirection, out vec4 rayColour)
+void reflection(out Ray ray)
 {
     //Intersection information
     vec3 closestIntersection = vec3(10000.0);
@@ -138,28 +156,24 @@ void reflection(out vec3 rayOrigin, out vec3 rayDirection, out vec4 rayColour)
     vec3 normal;
 
     //Primitive information
-    vec3 norm;
-    vec3 pos0, pos1, pos2;
-    vec2 tex0, tex1, tex2;
-    vec4 col0, col1, col2;
-    float alb0, alb1, alb2;
+    Primitive triangle;
 
     //For each primitive
 	for(int i = 0; i < numIndices; i += 3)
 	{
         //Get primitive info
-        getPrimitive(i, norm, pos0, pos1, pos2, tex0, tex1, tex2, col0, col1, col2, alb0, alb1, alb2);
+        getPrimitive(i, triangle);
 
 
         //Transform primitive into model view
-        pos0 = (MVP * vec4(pos0, 1.0)).xyz;
-        pos1 = (MVP * vec4(pos1, 1.0)).xyz;
-        pos2 = (MVP * vec4(pos2, 1.0)).xyz;
-        norm = (normalMVP * vec4(norm, 1.0)).xyz;
+        triangle.pos0 = (MVP * vec4(triangle.pos0, 1.0)).xyz;
+        triangle.pos1 = (MVP * vec4(triangle.pos1, 1.0)).xyz;
+        triangle.pos2 = (MVP * vec4(triangle.pos2, 1.0)).xyz;
+        triangle.norm = (normalMVP * vec4(triangle.norm, 1.0)).xyz;
 
         //Checks for intersection
         vec3 intersection;
-        bool intersects = intersectRayTriangle(rayDirection, pos0,  pos1, pos2, intersection);
+        bool intersects = intersectRayTriangle(ray.direction, triangle.pos0,  triangle.pos1, triangle.pos2, intersection);
 
         //If this is the closest intersection, then update values
         if (intersects && length(intersection) < length(closestIntersection))
@@ -167,19 +181,19 @@ void reflection(out vec3 rayOrigin, out vec3 rayDirection, out vec4 rayColour)
             intersectsAny = true;
             closestIntersection = intersection;
 
-            vec3 barycentricCoords = barycentric(intersection, pos0, pos1, pos2);
+            vec3 barycentricCoords = barycentric(intersection, triangle.pos0, triangle.pos1, triangle.pos2);
             //colour = interpolateColour(barycentricCoords, col0, col1, col2);
-            albedo = interpolateAlbedo(barycentricCoords, alb0, alb1, alb2);
-            normal = norm;
+            albedo = interpolateAlbedo(barycentricCoords, triangle.alb0, triangle.alb1, triangle.alb2);
+            normal = triangle.norm;
 
             colour = vec4(normal * 0.5 + 0.5, 1.0);
         }
 	}
 
     //Return ray information
-    rayDirection = reflect(rayDirection, normal);
-    rayOrigin = closestIntersection;
-    rayColour = colour;
+    ray.direction = reflect(ray.direction, normal);
+    ray.origin = closestIntersection;
+    ray.colour = colour;
 }
 
 void main()
@@ -190,15 +204,16 @@ void main()
 	float y = (2 * screen.y - 1);
 
     // Initialise ray properties
+    Ray ray;
     float fov = 90.0;
-    vec3 rayOrigin = vec3(0.0, 0.0, 0.0);
+    ray.origin = vec3(0.0, 0.0, 0.0);
     vec3 pixelOrigin = vec3(x, y, 0.5 / tan(radians(fov/2)));
-    vec3 rayDirection = normalize(pixelOrigin);
-    vec4 rayColour;
+    ray.direction = normalize(pixelOrigin);
+    ray.colour;
 
     // Calculate pixel colour
-    reflection(rayOrigin, rayDirection, rayColour);
+    reflection(ray);
 
     // Draw colour
-	FragColor = rayColour;
+	FragColor = ray.colour;
 }
