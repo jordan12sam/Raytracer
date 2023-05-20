@@ -15,8 +15,7 @@ uniform float AR;
 
 struct HitInfo {
     bool didHit;
-    float dist;
-    vec3 hitPosition;
+    vec3 position;
     vec3 normal;
 };
 
@@ -172,16 +171,15 @@ void reflection(out Ray ray)
         triangle.norm = (normalMVP * vec4(triangle.norm, 1.0)).xyz;
 
         //Checks for intersection
-        vec3 intersection;
-        bool intersects = intersectRayTriangle(ray.direction, triangle.pos0,  triangle.pos1, triangle.pos2, intersection);
+        triangle.hitInfo.didHit = intersectRayTriangle(ray.direction, triangle.pos0,  triangle.pos1, triangle.pos2, triangle.hitInfo.position);
 
         //If this is the closest intersection, then update values
-        if (intersects && length(intersection) < length(closestIntersection))
+        if (triangle.hitInfo.didHit && length(triangle.hitInfo.position) < length(closestIntersection))
         {
             intersectsAny = true;
-            closestIntersection = intersection;
+            closestIntersection = triangle.hitInfo.position;
 
-            vec3 barycentricCoords = barycentric(intersection, triangle.pos0, triangle.pos1, triangle.pos2);
+            vec3 barycentricCoords = barycentric(triangle.hitInfo.position, triangle.pos0, triangle.pos1, triangle.pos2);
             //colour = interpolateColour(barycentricCoords, col0, col1, col2);
             albedo = interpolateAlbedo(barycentricCoords, triangle.alb0, triangle.alb1, triangle.alb2);
             normal = triangle.norm;
