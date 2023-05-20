@@ -39,13 +39,13 @@ float rand(vec2 co){
 }
 
 //Möller–Trumbore intersection algorithm
-bool intersectRayTriangle(vec3 rayDirection, vec3 v0, vec3 v1, vec3 v2, out vec3 intersection)
+bool intersectRayTriangle(Ray ray, vec3 v0, vec3 v1, vec3 v2, out vec3 intersection)
 {
     const float EPSILON = 0.000001;
 
     vec3 edge1 = v1 - v0;
     vec3 edge2 = v2 - v0;
-    vec3 h = cross(rayDirection, edge2);
+    vec3 h = cross(ray.direction, edge2);
     float a = dot(edge1, h);
     if (a > -EPSILON && a < EPSILON) {
         return false; // ray is parallel to triangle
@@ -59,14 +59,14 @@ bool intersectRayTriangle(vec3 rayDirection, vec3 v0, vec3 v1, vec3 v2, out vec3
     }
 
     vec3 q = cross(s, edge1);
-    float v = f * dot(rayDirection, q);
+    float v = f * dot(ray.direction, q);
     if (v < 0.0 || u + v > 1.0) {
         return false; // intersection is outside the triangle
     }
 
     float t = f * dot(edge2, q);
     if (t > EPSILON) {
-        intersection = rayDirection * t;
+        intersection = ray.direction * t;
         return true; // intersection is valid
     }
 
@@ -171,7 +171,7 @@ void reflection(out Ray ray)
         triangle.norm = (normalMVP * vec4(triangle.norm, 1.0)).xyz;
 
         //Checks for intersection
-        triangle.hitInfo.didHit = intersectRayTriangle(ray.direction, triangle.pos0,  triangle.pos1, triangle.pos2, triangle.hitInfo.position);
+        triangle.hitInfo.didHit = intersectRayTriangle(ray, triangle.pos0,  triangle.pos1, triangle.pos2, triangle.hitInfo.position);
 
         //If this is the closest intersection, then update values
         if (triangle.hitInfo.didHit && length(triangle.hitInfo.position) < length(closestIntersection))
