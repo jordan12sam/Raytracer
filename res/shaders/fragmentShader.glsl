@@ -39,38 +39,42 @@ float rand(vec2 co){
 }
 
 //Möller–Trumbore intersection algorithm
-bool intersectRayTriangle(Ray ray, vec3 v0, vec3 v1, vec3 v2, out vec3 intersection)
+void intersectRayTriangle(Ray ray, out Primitive triangle)
 {
     const float EPSILON = 0.000001;
 
-    vec3 edge1 = v1 - v0;
-    vec3 edge2 = v2 - v0;
+    vec3 edge1 = triangle.pos1 - triangle.pos0;
+    vec3 edge2 = triangle.pos2 - triangle.pos0;
     vec3 h = cross(ray.direction, edge2);
     float a = dot(edge1, h);
     if (a > -EPSILON && a < EPSILON) {
-        return false; // ray is parallel to triangle
+        triangle.hitInfo.didHit = false; // ray is parallel to triangle
+        return;
     }
 
     float f = 1.0 / a;
-    vec3 s = -v0;
+    vec3 s = -triangle.pos0;
     float u = f * dot(s, h);
     if (u < 0.0 || u > 1.0) {
-        return false; // intersection is outside the triangle
+        triangle.hitInfo.didHit = false; // intersection is outside the triangle
+        return;
     }
 
     vec3 q = cross(s, edge1);
     float v = f * dot(ray.direction, q);
     if (v < 0.0 || u + v > 1.0) {
-        return false; // intersection is outside the triangle
+        triangle.hitInfo.didHit = false; // intersection is outside the triangle
+        return;
     }
 
     float t = f * dot(edge2, q);
     if (t > EPSILON) {
-        intersection = ray.direction * t;
-        return true; // intersection is valid
+        triangle.hitInfo.position = ray.direction * t;
+        triangle.hitInfo.didHit = true; // intersection is valid
+        return;
     }
 
-    return false; // intersection is behind the ray
+    triangle.hitInfo.didHit = false; // intersection is behind the ray
 }
 
 vec3 barycentric(Primitive triangle) {
@@ -171,7 +175,7 @@ void reflection(out Ray ray)
         triangle.norm = (normalMVP * vec4(triangle.norm, 1.0)).xyz;
 
         //Checks for intersection
-        triangle.hitInfo.didHit = intersectRayTriangle(ray, triangle.pos0,  triangle.pos1, triangle.pos2, triangle.hitInfo.position);
+        intersectRayTriangle(ray, triangle);
 
         //If this is the closest intersection, then update values
         if (triangle.hitInfo.didHit && length(triangle.hitInfo.position) < length(closestIntersection))
