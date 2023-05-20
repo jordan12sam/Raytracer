@@ -43,9 +43,17 @@ float randNormal(vec2 co, float mean, float stddev){
     return mean + stddev * normal;
 }
 
-vec2 randomDirection(vec2 co){
-    float angle = randNormal(co, 0.0, 2.0 * PI);
-    return vec2(cos(angle), sin(angle));
+vec3 randomDirection(vec2 co, Primitive triangle){
+    float azimuth = randNormal(co, 0.0, 2.0 * PI);
+    float inclination = randNormal(co + vec2(1.0, 0.0), 0.0, 2.0 * PI);
+    float x = cos(azimuth) * cos(inclination);
+    float y = sin(azimuth) * cos(inclination);
+    float z = sin(inclination);
+    vec3 direction = normalize(vec3(x, y, z));
+    if (dot(direction, normal) < 0.0) {
+        direction = reflect(direction, direction);
+    }
+    return normalize(direction);
 }
 
 
