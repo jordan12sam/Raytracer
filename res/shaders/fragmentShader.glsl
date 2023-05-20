@@ -73,10 +73,10 @@ bool intersectRayTriangle(vec3 rayDirection, vec3 v0, vec3 v1, vec3 v2, out vec3
     return false; // intersection is behind the ray
 }
 
-vec3 barycentric(vec3 p, vec3 a, vec3 b, vec3 c) {
-    vec3 v0 = b - a;
-    vec3 v1 = c - a;
-    vec3 v2 = p - a;
+vec3 barycentric(Primitive triangle) {
+    vec3 v0 = triangle.pos1 - triangle.pos0;
+    vec3 v1 = triangle.pos2 - triangle.pos0;
+    vec3 v2 = triangle.hitInfo.position - triangle.pos0;
 
     float d00 = dot(v0, v0);
     float d01 = dot(v0, v1);
@@ -93,16 +93,16 @@ vec3 barycentric(vec3 p, vec3 a, vec3 b, vec3 c) {
     return vec3(u, v, w);
 }
 
-vec4 interpolateColour(vec3 barycentricCoords, vec4 colourA, vec4 colourB, vec4 colourC) {
-    return colourA * barycentricCoords.x + colourB * barycentricCoords.y + colourC * barycentricCoords.z;
+vec4 interpolateColour(vec3 barycentricCoords, Primitive triangle) {
+    return triangle.col0 * barycentricCoords.x + triangle.col1 * barycentricCoords.y + triangle.col2 * barycentricCoords.z;
 }
 
-vec2 interpolateTexture(vec3 barycentricCoords, vec2 textureA, vec2 textureB, vec2 textureC) {
-    return textureA * barycentricCoords.x + textureB * barycentricCoords.y + textureC * barycentricCoords.z;
+vec2 interpolateTexture(vec3 barycentricCoords, Primitive triangle) {
+    return triangle.tex0 * barycentricCoords.x + triangle.tex1 * barycentricCoords.y + triangle.tex2 * barycentricCoords.z;
 }
 
-float interpolateAlbedo(vec3 barycentricCoords, float albedoA, float albedoB, float albedoC) {
-    return albedoA * barycentricCoords.x + albedoB * barycentricCoords.y + albedoC * barycentricCoords.z;
+float interpolateAlbedo(vec3 barycentricCoords, Primitive triangle) {
+    return triangle.alb0 * barycentricCoords.x + triangle.alb1 * barycentricCoords.y + triangle.alb2 * barycentricCoords.z;
 }
 
 void getPrimitive(  int i,
@@ -179,11 +179,10 @@ void reflection(out Ray ray)
             intersectsAny = true;
             closestIntersection = triangle.hitInfo.position;
 
-            vec3 barycentricCoords = barycentric(triangle.hitInfo.position, triangle.pos0, triangle.pos1, triangle.pos2);
+            vec3 barycentricCoords = barycentric(triangle);
             //colour = interpolateColour(barycentricCoords, col0, col1, col2);
-            albedo = interpolateAlbedo(barycentricCoords, triangle.alb0, triangle.alb1, triangle.alb2);
+            albedo = interpolateAlbedo(barycentricCoords, triangle);
             normal = triangle.norm;
-
             colour = vec4(normal * 0.5 + 0.5, 1.0);
         }
 	}
