@@ -36,19 +36,20 @@ struct Ray {
     vec4 colour;
 };
 
-float randNormal(vec2 co, float mean, float stddev){
+float randNormalDist(vec2 co, float mean, float stddev){
     float a = sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453;
     float b = sin(dot(co, vec2(4.1414, 65.982))) * 54736.7893;
-    float normal = sqrt(-2.0 * log(a)) * cos(2.0 * PI * b);
-    return mean + stddev * normal;
+    float rand = sqrt(-2.0 * log(a)) * cos(2.0 * PI * b);
+    return mean + stddev * rand;
 }
 
 vec3 randomDirection(vec2 co, Primitive triangle){
-    float azimuth = randNormal(co, 0.0, 2.0 * PI);
-    float inclination = randNormal(co + vec2(1.0, 0.0), 0.0, 2.0 * PI);
-    float x = cos(azimuth) * cos(inclination);
-    float y = sin(azimuth) * cos(inclination);
-    float z = sin(inclination);
+    float azimuth = rand(co) * 2.0 * PI;
+    float inclination = rand(co + vec2(1.0, 0.0)) * 2.0 - 1.0;
+    float cosInclination = sqrt(1.0 - inclination * inclination);
+    float x = cos(azimuth) * cosInclination;
+    float y = sin(azimuth) * cosInclination;
+    float z = inclination;
     vec3 direction = normalize(vec3(x, y, z));
     if (dot(direction, normal) < 0.0) {
         direction = reflect(direction, direction);
