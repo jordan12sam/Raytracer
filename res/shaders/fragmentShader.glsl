@@ -13,6 +13,8 @@ uniform mat4 MVP;
 uniform mat4 normalMVP;
 uniform float AR;
 
+const float PI = 3.141592653589793238;
+
 struct HitInfo {
     bool didHit;
     vec3 position;
@@ -34,9 +36,18 @@ struct Ray {
     vec4 colour;
 };
 
-float rand(vec2 co){
-    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+float randNormal(vec2 co, float mean, float stddev){
+    float a = sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453;
+    float b = sin(dot(co, vec2(4.1414, 65.982))) * 54736.7893;
+    float normal = sqrt(-2.0 * log(a)) * cos(2.0 * PI * b);
+    return mean + stddev * normal;
 }
+
+vec2 randomDirection(vec2 co){
+    float angle = randNormal(co, 0.0, 2.0 * PI);
+    return vec2(cos(angle), sin(angle));
+}
+
 
 //Möller–Trumbore intersection algorithm
 void intersectRayTriangle(Ray ray, out Primitive triangle)
