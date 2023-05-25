@@ -17,6 +17,7 @@
 #include "Buffer.hpp"
 #include "VertexArray.hpp"
 #include "VertexBufferLayout.hpp"
+#include "Scene.hpp"
 #include "../res/models/Shape.hpp"
 
 #include <iostream>
@@ -61,25 +62,15 @@ int main()
         IndexBuffer quadIBO(quadIndices, 6);
 
         // Initialise scene
-        std::vector<GLfloat> sceneVertices;
-        std::vector<GLint> sceneIndices;
-        std::vector<GLfloat> sceneNormals;
+        Scene scene;
+        scene.pushCube(glm::vec3(1.7f, -2.3f, 4.0f), glm::vec4(0.6f, 0.2f, 0.8f, 1.0f), 1.0f, 0.0f);
+        scene.pushCube(glm::vec3(-1.8f, 2.9f, -2.1f), glm::vec4(0.1f, 0.7f, 0.4f, 1.0f), 2.0f, 0.0f);
+        scene.pushCube(glm::vec3(0.9f, -3.1f, 1.8f), glm::vec4(0.9f, 0.5f, 0.1f, 1.0f), 3.0f, 0.0f);
+        scene.pushCube(glm::vec3(0.0f, -35.0f, 0.0f), glm::vec4(0.2f, 0.0f, 0.2f, 1.0f), 60.0f, 0.0f);
+        scene.pushPyramid(glm::vec3(-3.8f, 3.7f, -1.5f), glm::vec4(0.3f, 0.9f, 0.2f, 1.0f), 1.0f, 0.0f);
+        scene.pushPyramid(glm::vec3(3.0f, 1.2f, 2.3f), glm::vec4(0.8f, 0.4f, 0.6f, 1.0f), 2.0f, 0.0f);
+        scene.pushPyramid(glm::vec3(-2.7f, -3.9f, 0.8f), glm::vec4(0.2f, 0.7f, 0.9f, 1.0f), 3.0f, 0.0f);
 
-        Cube cube1(glm::vec3(1.7f, -2.3f, 4.0f), glm::vec4(0.6f, 0.2f, 0.8f, 1.0f), 1.0f, 0.0f);
-        cube1.push(sceneVertices, sceneIndices, sceneNormals);
-        Cube cube2(glm::vec3(-1.8f, 2.9f, -2.1f), glm::vec4(0.1f, 0.7f, 0.4f, 1.0f), 2.0f, 0.0f);
-        cube2.push(sceneVertices, sceneIndices, sceneNormals);
-        Cube cube3(glm::vec3(0.9f, -3.1f, 1.8f), glm::vec4(0.9f, 0.5f, 0.1f, 1.0f), 3.0f, 0.0f);
-        cube3.push(sceneVertices, sceneIndices, sceneNormals);
-        Cube cube4(glm::vec3(0.0f, -35.0f, 0.0f), glm::vec4(0.2f, 0.0f, 0.2f, 1.0f), 60.0f, 0.0f);
-        cube4.push(sceneVertices, sceneIndices, sceneNormals);
-
-        Pyramid pyramid1(glm::vec3(-3.8f, 3.7f, -1.5f), glm::vec4(0.3f, 0.9f, 0.2f, 1.0f), 1.0f, 0.0f);
-        pyramid1.push(sceneVertices, sceneIndices, sceneNormals);
-        Pyramid pyramid2(glm::vec3(3.0f, 1.2f, 2.3f), glm::vec4(0.8f, 0.4f, 0.6f, 1.0f), 2.0f, 0.0f);
-        pyramid2.push(sceneVertices, sceneIndices, sceneNormals);
-        Pyramid pyramid3(glm::vec3(-2.7f, -3.9f, 0.8f), glm::vec4(0.2f, 0.7f, 0.9f, 1.0f), 3.0f, 0.0f);
-        pyramid3.push(sceneVertices, sceneIndices, sceneNormals);
 
         // Define shaders
         Shader vertexShader("../res/shaders/vertexShader.glsl", GL_VERTEX_SHADER);
@@ -90,12 +81,12 @@ int main()
         shaderProgram.link();
         shaderProgram.bind();
 
-        shaderProgram.setFloatArray("vertices", &sceneVertices[0], (int)sceneVertices.size());
-        shaderProgram.setIntArray("indices", &sceneIndices[0], (int)sceneIndices.size());
-        shaderProgram.setFloatArray("normals", &sceneNormals[0], (int)sceneNormals.size());
-        shaderProgram.setInt("numVertices", (int)sceneVertices.size());
+        shaderProgram.setFloatArray("vertices", &scene.vertices[0], (int)scene.vertices.size());
+        shaderProgram.setIntArray("indices", &scene.indices[0], (int)scene.indices.size());
+        shaderProgram.setFloatArray("normals", &scene.normals[0], (int)scene.normals.size());
+        shaderProgram.setInt("numVertices", (int)scene.vertices.size());
         shaderProgram.setInt("vertexSize", 10);
-        shaderProgram.setInt("numIndices", (int)sceneIndices.size());
+        shaderProgram.setInt("numIndices", (int)scene.indices.size());
         shaderProgram.setFloat("AR", AR);
 
         Camera camera;
