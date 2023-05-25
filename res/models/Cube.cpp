@@ -1,6 +1,7 @@
 #include "Shape.hpp"
 
-Shape Shape::setCube()
+Cube::Cube(glm::vec3 position, glm::vec4 colour, float scale, float albedo)
+: Shape(position, colour, scale, albedo)
 {
     m_vertices =
     {
@@ -78,6 +79,4 @@ Shape Shape::setCube()
     };
     
     this->transform();
-
-    return *this;
 }

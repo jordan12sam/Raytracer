@@ -12,20 +12,30 @@
 class Shape
 {
     public:
-        Shape(glm::vec3 position, float scale, glm::vec4 colour, float albedo)
-        : m_position(position), m_scale(scale), m_colour(colour), m_albedo(albedo){};
+        Shape::Shape(glm::vec3 position, glm::vec4 colour, float scale, float albedo)
+        : m_position(position), m_colour(colour), m_scale(scale), m_albedo(albedo) {}
         ~Shape();
         void push(std::vector<GLfloat> &sceneVertices, std::vector<GLint> &sceneIndices, std::vector<GLfloat> &sceneNormals);
-        Shape setCube();
-        Shape setPyramid();
-        int vertexSize = 10;
     protected:
-        glm::vec3 m_position;
+        int m_vertexSize = 10;
         float m_scale;
-        glm::vec4 m_colour;
         float m_albedo;
+        glm::vec3 m_position;
+        glm::vec4 m_colour;
         std::vector<GLfloat> m_vertices;
         std::vector<GLint> m_indices;
         std::vector<GLfloat> m_normals;
         void transform(); 
+};
+
+class Cube: public Shape
+{
+    public:
+        Cube(glm::vec3 position, glm::vec4 colour, float scale, float albedo);
+};
+
+class Pyramid: public Shape
+{
+    public:
+        Pyramid(glm::vec3 position, glm::vec4 colour, float scale, float albedo);
 };
