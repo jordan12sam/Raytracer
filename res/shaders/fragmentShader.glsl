@@ -3,9 +3,9 @@
 in vec2 screen;
 out vec4 FragColor;
 
-uniform float vertices[1024];
-uniform int indices[1024];
-uniform float normals[1024];
+uniform float vertices[1200];
+uniform int indices[1200];
+uniform float normals[1200];
 uniform int numVertices;
 uniform int vertexSize;
 uniform int numIndices;
@@ -206,10 +206,9 @@ void reflection(out Ray ray)
             closestIntersection = triangle.hitInfo.position;
 
             vec3 barycentricCoords = barycentric(triangle);
-            //colour = interpolateColour(barycentricCoords, col0, col1, col2);
             albedo = interpolateAlbedo(barycentricCoords, triangle);
             normal = triangle.norm;
-            colour = vec4(normal * 0.5 + 0.5, 1.0);
+            colour = interpolateColour(barycentricCoords, triangle);
         }
 	}
 

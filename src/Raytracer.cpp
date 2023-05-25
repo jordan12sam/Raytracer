@@ -71,6 +71,8 @@ int main()
         cube2.setCube().push(sceneVertices, sceneIndices, sceneNormals);
         Shape cube3(glm::vec3(0.9f, -3.1f, 1.8f), 3.0f, glm::vec4(0.9f, 0.5f, 0.1f, 1.0f), 0.0f);
         cube3.setCube().push(sceneVertices, sceneIndices, sceneNormals);
+        Shape cube4(glm::vec3(0.0f, -35.0f, 0.0f), 60.0f, glm::vec4(0.2f, 0.0f, 0.2f, 1.0f), 0.0f);
+        cube4.setCube().push(sceneVertices, sceneIndices, sceneNormals);
 
         Shape pyramid1(glm::vec3(-3.8f, 3.7f, -1.5f), 1.0f, glm::vec4(0.3f, 0.9f, 0.2f, 1.0f), 0.0f);
         pyramid1.setPyramid().push(sceneVertices, sceneIndices, sceneNormals);
