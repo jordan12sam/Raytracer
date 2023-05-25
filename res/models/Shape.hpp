@@ -17,7 +17,6 @@ class Shape
         ~Shape();
         void push(std::vector<GLfloat> &sceneVertices, std::vector<GLint> &sceneIndices, std::vector<GLfloat> &sceneNormals);
     protected:
-        int m_vertexSize = 10;
         float m_scale;
         float m_albedo;
         glm::vec3 m_position;

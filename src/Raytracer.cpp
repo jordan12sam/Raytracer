@@ -114,7 +114,7 @@ int main()
 
             view = camera.getViewMatrix();
             mvp = projection * view * model;
-            glm::mat4 normalMvp = projection * transpose(inverse(modelView));
+            glm::mat4 normalMvp = projection * transpose(inverse(view * model));
 
             shaderProgram.bind();
             shaderProgram.setMat4("MVP", mvp);
