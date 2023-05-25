@@ -1,11 +1,6 @@
 #include "Renderer.hpp"
 
-Renderer::Renderer(const unsigned int width, const unsigned int height)
-{
-
-}
-
-void Renderer::draw(ShaderProgram &shaderProgram, VertexArray &VAO, const unsigned int screenWidth, const unsigned int screenHeight)
+void Renderer::draw(ShaderProgram &shaderProgram, VertexArray &VAO)
 {
     shaderProgram.bind();
     VAO.bind();

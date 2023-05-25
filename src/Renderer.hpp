@@ -13,8 +13,6 @@
 class Renderer
 {
     public:
-        Renderer(const unsigned int width, const unsigned int height);
-        void draw(ShaderProgram &shaderProgram, VertexArray &VAO, const unsigned int width, const unsigned int height);
-        GLuint texture;
+        void draw(ShaderProgram &shaderProgram, VertexArray &VAO);
     private:
 };

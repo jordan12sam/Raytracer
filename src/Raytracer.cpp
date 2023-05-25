@@ -50,7 +50,7 @@ int main()
         Window window(WIDTH, HEIGHT, "Raytracer");
 
         // Initialise Renderer
-        Renderer renderer(WIDTH, HEIGHT);
+        Renderer renderer;
 
         // Define vertex buffer, vertex array, and index buffer objects
         VertexBufferLayout quadLayout;
@@ -120,7 +120,7 @@ int main()
             shaderProgram.setMat4("MVP", mvp);
             shaderProgram.setMat4("normalMVP", normalMvp);
 
-            renderer.draw(shaderProgram, quadVAO, WIDTH, HEIGHT);
+            renderer.draw(shaderProgram, quadVAO);
 
             begin = std::chrono::high_resolution_clock::now();
         }
