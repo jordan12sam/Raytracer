@@ -16,6 +16,7 @@ class Scene {
         void pushPyramid(glm::vec3 position, glm::vec4 colour, float scale, float albedo);
         void removeShape(int index);
         void compile();
+        void applyMvp(glm::mat4 model, glm::mat4 view, glm::mat4 projection);
         std::vector<Shape> shapes;
         std::vector<GLfloat> vertices;
         std::vector<GLint> indices;

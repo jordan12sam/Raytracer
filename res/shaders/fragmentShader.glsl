@@ -184,13 +184,6 @@ void reflection(out Ray ray)
         //Get primitive info
         getPrimitive(i, triangle);
 
-
-        //Transform primitive into model view
-        triangle.pos0 = (MVP * vec4(triangle.pos0, 1.0)).xyz;
-        triangle.pos1 = (MVP * vec4(triangle.pos1, 1.0)).xyz;
-        triangle.pos2 = (MVP * vec4(triangle.pos2, 1.0)).xyz;
-        triangle.norm = (normalMVP * vec4(triangle.norm, 1.0)).xyz;
-
         //Checks for intersection
         intersectRayTriangle(ray, triangle);
 

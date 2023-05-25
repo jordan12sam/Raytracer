@@ -81,12 +81,6 @@ int main()
         shaderProgram.link();
         shaderProgram.bind();
 
-        shaderProgram.setFloatArray("vertices", &scene.vertices[0], (int)scene.vertices.size());
-        shaderProgram.setIntArray("indices", &scene.indices[0], (int)scene.indices.size());
-        shaderProgram.setFloatArray("normals", &scene.normals[0], (int)scene.normals.size());
-        shaderProgram.setInt("numVertices", (int)scene.vertices.size());
-        shaderProgram.setInt("vertexSize", 10);
-        shaderProgram.setInt("numIndices", (int)scene.indices.size());
         shaderProgram.setFloat("AR", AR);
 
         Camera camera;
@@ -103,6 +97,7 @@ int main()
             auto end = std::chrono::high_resolution_clock::now();
             auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin).count();
             auto fps = 1 / nanoseconds / 10e-9;
+            std::cout << nanoseconds << std::endl;
 
             double xpos, ypos;
             glfwGetCursorPos(window.getWindow(), &xpos, &ypos);
@@ -113,12 +108,16 @@ int main()
             camera.processMouseInput(xpos, ypos);
 
             view = camera.getViewMatrix();
-            mvp = projection * view * model;
-            glm::mat4 normalMvp = projection * transpose(inverse(view * model));
+            scene.compile();
+            scene.applyMvp(model, view, projection);
 
             shaderProgram.bind();
-            shaderProgram.setMat4("MVP", mvp);
-            shaderProgram.setMat4("normalMVP", normalMvp);
+            shaderProgram.setFloatArray("vertices", &scene.vertices[0], (int)scene.vertices.size());
+            shaderProgram.setIntArray("indices", &scene.indices[0], (int)scene.indices.size());
+            shaderProgram.setFloatArray("normals", &scene.normals[0], (int)scene.normals.size());
+            shaderProgram.setInt("numVertices", (int)scene.vertices.size());
+            shaderProgram.setInt("vertexSize", 10);
+            shaderProgram.setInt("numIndices", (int)scene.indices.size());
 
             renderer.draw(shaderProgram, quadVAO);
 
