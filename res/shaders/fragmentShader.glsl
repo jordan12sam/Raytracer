@@ -53,7 +53,7 @@ vec3 randomDirection(vec2 co, Primitive triangle){
     float y = sin(azimuth) * cosInclination;
     float z = inclination;
     vec3 direction = normalize(vec3(x, y, z));
-    if (dot(direction, normal) < 0.0) {
+    if (dot(direction, triangle.norm) < 0.0) {
         direction = reflect(direction, direction);
     }
     return normalize(direction);
