@@ -9,8 +9,6 @@ uniform float normals[1200];
 uniform int numVertices;
 uniform int vertexSize;
 uniform int numIndices;
-uniform mat4 MVP;
-uniform mat4 normalMVP;
 uniform float AR;
 
 const float PI = 3.141592653589793238;
