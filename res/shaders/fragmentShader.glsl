@@ -1,6 +1,8 @@
 #version 460 core
 
 in vec2 screen;
+in vec3 originn;
+in vec3 rayy;
 out vec4 FragColor;
 
 uniform float vertices[1200];
@@ -196,8 +198,8 @@ void reflection(out Ray ray)
             vec3 barycentricCoords = barycentric(triangle);
             albedo = interpolateAlbedo(barycentricCoords, triangle);
             normal = triangle.norm;
-            colour = vec4(normal * 0.5 + 0.5, 1.0);
-            //colour = interpolateColour(barycentricCoords, triangle);
+            //colour = vec4(normal * 0.5 + 0.5, 1.0);
+            colour = interpolateColour(barycentricCoords, triangle);
         }
 	}
 
@@ -216,10 +218,8 @@ void main()
 
     // Initialise ray properties
     Ray ray;
-    float fov = 90.0;
-    ray.origin = vec3(0.0, 0.0, 0.0);
-    vec3 pixelOrigin = vec3(x, y, 0.5 / tan(radians(fov/2)));
-    ray.direction = normalize(pixelOrigin);
+    ray.origin = originn;
+    ray.direction = normalize(rayy);
     ray.colour;
 
     // Calculate pixel colour

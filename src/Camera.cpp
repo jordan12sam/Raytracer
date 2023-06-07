@@ -1,10 +1,10 @@
 #include "Camera.hpp"
 
-Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
-    : m_position(position), 
-    m_worldUp(up), 
-    m_yaw(yaw), 
-    m_pitch(pitch), 
+Camera::Camera()
+    : m_position(glm::vec3(0.0f, 0.0f, 5.0f)), 
+    m_worldUp(glm::vec3(0.0f, 1.0f, 0.0f)), 
+    m_yaw(-90.0f), 
+    m_pitch(0.0f), 
     m_front(glm::vec3(0.0f, 0.0f, -1.0f)),
     m_fov(45.0f), 
     m_nearClip(0.1f), 
@@ -34,7 +34,7 @@ void Camera::updateVectors()
     m_front = glm::normalize(front);
 
     // Also re-calculate the Right and Up vector
-    m_right = glm::normalize(glm::cross(m_front, m_worldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+    m_right = glm::normalize(glm::cross(m_front, m_worldUp));
     m_up = glm::normalize(glm::cross(m_right, m_front));
 }
 

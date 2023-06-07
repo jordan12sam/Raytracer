@@ -62,13 +62,7 @@ int main()
 
         // Initialise scene
         Scene scene;
-        scene.pushCube(glm::vec3(1.7f, -2.3f, 4.0f), glm::vec4(0.6f, 0.2f, 0.8f, 1.0f), 1.0f, 0.0f);
-        scene.pushCube(glm::vec3(-1.8f, 2.9f, -2.1f), glm::vec4(0.1f, 0.7f, 0.4f, 1.0f), 2.0f, 0.0f);
-        scene.pushCube(glm::vec3(0.9f, -3.1f, 1.8f), glm::vec4(0.9f, 0.5f, 0.1f, 1.0f), 3.0f, 0.0f);
-        scene.pushCube(glm::vec3(0.0f, -35.0f, 0.0f), glm::vec4(0.2f, 0.0f, 0.2f, 1.0f), 60.0f, 0.0f);
-        scene.pushPyramid(glm::vec3(-3.8f, 3.7f, -1.5f), glm::vec4(0.3f, 0.9f, 0.2f, 1.0f), 1.0f, 0.0f);
-        scene.pushPyramid(glm::vec3(3.0f, 1.2f, 2.3f), glm::vec4(0.8f, 0.4f, 0.6f, 1.0f), 2.0f, 0.0f);
-        scene.pushPyramid(glm::vec3(-2.7f, -3.9f, 0.8f), glm::vec4(0.2f, 0.7f, 0.9f, 1.0f), 3.0f, 0.0f);
+        scene.pushCube(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, 0.0f);
 
 
         // Define shaders
@@ -80,15 +74,16 @@ int main()
         shaderProgram.link();
         shaderProgram.bind();
 
-        shaderProgram.setFloat("AR", AR);
-
         Camera camera;
-        glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = camera.getViewMatrix();
-        glm::mat4 modelView = view * model;
-        glm::mat4 projection = glm::perspective(45.0f, AR, 1.0f, 100000.0f);
-        glm::mat4 mvp = projection * modelView;
-        glm::mat4 normalMvp = projection * transpose(inverse(modelView));
+        float nearPlane = 1.0f;
+        float farPlane = 100.0f;
+        float fov = 90.0f;
+        glm::mat4 projection = glm::perspective(fov, AR, nearPlane, farPlane);
+
+        shaderProgram.setFloat("AR", AR);
+        shaderProgram.setFloat("near", nearPlane);
+        shaderProgram.setFloat("far", farPlane);
 
         auto begin = std::chrono::high_resolution_clock::now();
         while (window.isOpen())
@@ -96,7 +91,7 @@ int main()
             auto end = std::chrono::high_resolution_clock::now();
             auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin).count();
             auto fps = 1 / nanoseconds / 10e-9;
-            std::cout << nanoseconds << std::endl;
+            //std::cout << nanoseconds << std::endl;
 
             double xpos, ypos;
             glfwGetCursorPos(window.getWindow(), &xpos, &ypos);
@@ -107,10 +102,13 @@ int main()
             camera.processMouseInput(xpos, ypos);
 
             view = camera.getViewMatrix();
-            scene.compile();
-            scene.applyMvp(model, view, projection);
+            glm::mat4 projectionView = projection * view;
+            glm::mat4 inverseProjectionView = glm::inverse(projectionView);
+            std::cout << glm::to_string(camera.getPosition()) << std::endl;
 
             shaderProgram.bind();
+            shaderProgram.setMat4("inverseProjectionView", inverseProjectionView);
+            shaderProgram.setVec3("cameraPosition", camera.getPosition());
             shaderProgram.setFloatArray("vertices", &scene.vertices[0], (int)scene.vertices.size());
             shaderProgram.setIntArray("indices", &scene.indices[0], (int)scene.indices.size());
             shaderProgram.setFloatArray("normals", &scene.normals[0], (int)scene.normals.size());
