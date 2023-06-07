@@ -34,21 +34,23 @@ struct Ray {
     vec4 colour;
 };
 
-ivec3 xorshift(ivec3 seed) {
-    ivec3 parameters = ivec3(21, 35, 4);
-    for (int i = 0; i < 3; i++) 
-    {
-        seed[i] ^= seed[i] << parameters.x;
-        seed[i] ^= seed[i] >> parameters.y;
-        seed[i] ^= seed[i] << parameters.z;
-    }
+vec3 randomDirection(float seed) {
+    
+    float largeConst = 43756784728394978358.545642738965498243653123;
+    vec3 randomVec;
 
-    return seed;
-}
+    seed *= largeConst;
+    seed = fract(seed);
+    randomVec.x = seed;
 
-vec3 generateRandomDirection(int seed) {
-    ivec3 seedVec = ivec3(seed, seed + 2, seed + 3);
-    ivec3 randomVec = xorshift(seedVec);
+    seed *= largeConst;
+    seed = fract(seed);
+    randomVec.y = seed;
+
+    seed *= largeConst;
+    seed = fract(seed);
+    randomVec.z = seed;
+
     return normalize(randomVec);
 }
 
