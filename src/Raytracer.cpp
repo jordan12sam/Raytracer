@@ -30,10 +30,10 @@ float AR = (float)WIDTH / (float)HEIGHT;
 
 GLfloat quadVertices[] =
 {
-	-1.0f, -1.0f , 0.0f,    0.0f, 0.0f,
-	-1.0f,  1.0f , 0.0f,    0.0f, 1.0f,
-	 1.0f,  1.0f , 0.0f,    1.0f, 1.0f,
-	 1.0f, -1.0f , 0.0f,    1.0f, 0.0f
+	-1.0f, -1.0f,
+	-1.0f,  1.0f,
+	 1.0f,  1.0f,
+	 1.0f, -1.0f
 };
 
 GLuint quadIndices[] =
@@ -54,7 +54,6 @@ int main()
 
         // Define vertex buffer, vertex array, and index buffer objects
         VertexBufferLayout quadLayout;
-        quadLayout.push(GL_FLOAT, 3);
         quadLayout.push(GL_FLOAT, 2);
         VertexBuffer quadVBO(quadVertices, 20 * sizeof(GLfloat));
         VertexArray quadVAO;

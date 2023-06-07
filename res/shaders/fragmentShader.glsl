@@ -211,8 +211,8 @@ void main()
 {
     // Scale y coordinates to [-1.0, 1.0]
     // And x coordinates to [-AR, AR]
-	float x = (2 * screen.x - 1);
-	float y = (2 * screen.y - 1);
+	float x = screen.x;
+	float y = screen.y;
 
     // Initialise ray properties
     Ray ray;
