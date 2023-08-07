@@ -1,18 +1,20 @@
 #include "Camera.hpp"
 
 Camera::Camera()
-    : m_position(glm::vec3(0.0f, 0.0f, 5.0f)), 
-    m_worldUp(glm::vec3(0.0f, 1.0f, 0.0f)), 
-    m_yaw(-90.0f), 
-    m_pitch(0.0f), 
-    m_front(glm::vec3(0.0f, 0.0f, -1.0f)),
+    : m_position(glm::vec3(0.0f, 0.0f, 0.0f)), 
+
+    m_pitch(0.0f),
+    m_yaw(0.0f),
+    m_roll(0.0f),
+
     m_fov(45.0f), 
     m_nearClip(0.1f), 
     m_farClip(100.0f), 
+
     m_firstMouse(true), 
     m_lastX(0.0f), 
     m_lastY(0.0f),
-    m_sensitivity(0.2f) {
+    m_sensitivity(0.005f) {
     updateVectors();
 }
 
@@ -26,16 +28,16 @@ glm::vec3 Camera::getPosition() {
 
 void Camera::updateVectors()
 {
-    // Calculate the new Front vector
-    glm::vec3 front;
-    front.x = cos(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
-    front.y = sin(glm::radians(m_pitch));
-    front.z = sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
-    m_front = glm::normalize(front);
-
-    // Also re-calculate the Right and Up vector
-    m_right = glm::normalize(glm::cross(m_front, m_worldUp));
-    m_up = glm::normalize(glm::cross(m_right, m_front));
+    //Keep angles in bounds
+    m_yaw = remainder(m_yaw, 2*M_PI);
+    m_pitch = remainder(m_pitch, 2*M_PI);
+    m_roll = remainder(m_roll, 2*M_PI);
+    //Calculate rotation matrix
+    glm::mat4 rotationMatrix = glm::yawPitchRoll(m_yaw, m_pitch, m_roll);
+    //Apply rotations
+    m_front = glm::vec3(rotationMatrix * glm::vec4(0.0f, 0.0f, -1.0f, 1.0f));
+    m_up = glm::vec3(rotationMatrix * glm::vec4(0.0f,1.0f, 0.0f, 1.0f));
+    m_right = glm::vec3(rotationMatrix * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 }
 
 void Camera::processKeyboardInput(int deltaTime) {
@@ -48,6 +50,10 @@ void Camera::processKeyboardInput(int deltaTime) {
         m_position -= m_right * velocity;
     if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_D) == GLFW_PRESS)
         m_position += m_right * velocity;
+    if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_Q) == GLFW_PRESS)
+        m_roll -= velocity;
+    if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_E) == GLFW_PRESS)
+        m_roll += velocity;
     if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         m_position += m_up * velocity;
     if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
@@ -70,7 +76,7 @@ void Camera::processMouseInput(float xoffset, float yoffset, bool constrainPitch
     m_lastX = xoffset;
     m_lastY = yoffset;
 
-    m_yaw -= xVelocity;
+    m_yaw += xVelocity;
     m_pitch += yVelocity;
 
     if (constrainPitch) {

@@ -62,7 +62,7 @@ int main()
 
         // Initialise scene
         Scene scene;
-        scene.pushCube(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, 0.0f);
+        scene.pushCube(glm::vec3(0.0f, 0.0f, -8.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, 0.0f);
 
 
         // Define shaders
@@ -104,7 +104,7 @@ int main()
             view = camera.getViewMatrix();
             glm::mat4 projectionView = projection * view;
             glm::mat4 inverseProjectionView = glm::inverse(projectionView);
-            std::cout << glm::to_string(camera.getPosition()) << std::endl;
+            //std::cout << glm::to_string(camera.getPosition()) << std::endl;
 
             shaderProgram.bind();
             shaderProgram.setMat4("inverseProjectionView", inverseProjectionView);
