@@ -203,7 +203,6 @@ void reflection(out Ray ray)
             vec3 barycentricCoords = barycentric(triangle);
             albedo = interpolateAlbedo(barycentricCoords, triangle);
             normal = triangle.norm;
-            //colour = vec4(normal * 0.5 + 0.5, 1.0);
             colour = interpolateColour(barycentricCoords, triangle);
         }
 	}
