@@ -62,7 +62,9 @@ int main()
 
         // Initialise scene
         Scene scene;
-        scene.pushCube(glm::vec3(0.0f, 0.0f, -8.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, 0.0f);
+        scene.pushCube(glm::vec3(0.0f, 0.0f, -4.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 1.0f, 0.0f);
+        scene.pushCube(glm::vec3(5.0f, 0.0f, -4.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 1.0f, 0.0f);
+        scene.pushCube(glm::vec3(-5.0f, 0.0f, -4.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), 1.0f, 0.0f);
 
 
         // Define shaders
@@ -80,6 +82,7 @@ int main()
         float farPlane = 100.0f;
         float fov = 90.0f;
         glm::mat4 projection = glm::perspective(fov, AR, nearPlane, farPlane);
+        glm::mat4 model(1.0f);
 
         shaderProgram.setFloat("AR", AR);
         shaderProgram.setFloat("near", nearPlane);
@@ -90,8 +93,8 @@ int main()
         {
             auto end = std::chrono::high_resolution_clock::now();
             auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin).count();
-            auto fps = 1 / nanoseconds / 10e-9;
-            //std::cout << nanoseconds << std::endl;
+            auto fps = 10e9 / nanoseconds;
+            std::cout << fps << std::endl;
 
             double xpos, ypos;
             glfwGetCursorPos(window.getWindow(), &xpos, &ypos);
@@ -104,17 +107,18 @@ int main()
             view = camera.getViewMatrix();
             glm::mat4 projectionView = projection * view;
             glm::mat4 inverseProjectionView = glm::inverse(projectionView);
-            //std::cout << glm::to_string(camera.getPosition()) << std::endl;
+
+            Scene homogenousScene(scene);
+            homogenousScene.applyMvp(model, view, projection);
 
             shaderProgram.bind();
             shaderProgram.setMat4("inverseProjectionView", inverseProjectionView);
-            shaderProgram.setVec3("cameraPosition", camera.getPosition());
-            shaderProgram.setFloatArray("vertices", &scene.vertices[0], (int)scene.vertices.size());
-            shaderProgram.setIntArray("indices", &scene.indices[0], (int)scene.indices.size());
-            shaderProgram.setFloatArray("normals", &scene.normals[0], (int)scene.normals.size());
-            shaderProgram.setInt("numVertices", (int)scene.vertices.size());
+            shaderProgram.setFloatArray("vertices", &homogenousScene.vertices[0], (int)homogenousScene.vertices.size());
+            shaderProgram.setIntArray("indices", &homogenousScene.indices[0], (int)homogenousScene.indices.size());
+            shaderProgram.setFloatArray("normals", &homogenousScene.normals[0], (int)homogenousScene.normals.size());
+            shaderProgram.setInt("numVertices", (int)homogenousScene.vertices.size());
             shaderProgram.setInt("vertexSize", 10);
-            shaderProgram.setInt("numIndices", (int)scene.indices.size());
+            shaderProgram.setInt("numIndices", (int)homogenousScene.indices.size());
 
             renderer.draw(shaderProgram, quadVAO);
 

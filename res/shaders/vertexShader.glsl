@@ -1,7 +1,6 @@
 #version 460 core
 
 uniform mat4 inverseProjectionView;
-uniform vec3 cameraPosition;
 uniform float near;
 uniform float far;
 
@@ -16,9 +15,6 @@ void main()
     gl_Position = vec4(pos, 0.0, 1.0);
     screen = pos;
 
-    vec4 clipSpacePos = vec4(pos, near, 1.0);
-    vec4 viewSpacePos = inverseProjectionView * clipSpacePos;
-    vec3 viewSpacePosition = viewSpacePos.xyz / viewSpacePos.w;
-    originn = cameraPosition;
-    rayy = viewSpacePosition - originn;
+    originn = (vec4(pos, -1.0, 1.0) * near).xyz;
+    rayy = (vec4(pos * (far - near), far + near, far - near)).xyz;
 }

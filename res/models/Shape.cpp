@@ -40,8 +40,8 @@ void Shape::transform()
     {
         glm::vec3 positions = glm::vec3(m_vertices[i], m_vertices[i + 1], m_vertices[i + 2]);
         glm::mat4 translation = glm::translate(glm::mat4(1.0f), m_position);
-        glm::mat4 scaler = glm::scale(glm::mat4(1.0f), glm::vec3(m_scale));
-        glm::mat4 transformation = translation * scaler;
+        glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(m_scale));
+        glm::mat4 transformation = translation * scale;
         glm::vec3 newPositions = transformation * glm::vec4(positions, 1.0f);
         m_vertices[i] = newPositions.x;
         m_vertices[i + 1] = newPositions.y;

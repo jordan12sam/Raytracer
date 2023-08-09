@@ -1,5 +1,25 @@
 #include "Scene.hpp"
 
+Scene::Scene(Scene& scene)
+{
+    for(int i = 0; i < scene.shapes.size(); i++)
+    {
+        shapes.push_back(scene.shapes[i]);
+    }
+    for(int i = 0; i < scene.vertices.size(); i++)
+    {
+        vertices.push_back(scene.vertices[i]);
+    }
+    for(int i = 0; i < scene.indices.size(); i++)
+    {
+        indices.push_back(scene.indices[i]);
+    }
+        for(int i = 0; i < scene.normals.size(); i++)
+    {
+        normals.push_back(scene.normals[i]);
+    }
+}
+
 void Scene::pushShape(Shape shape)
 {
     shapes.push_back(shape);

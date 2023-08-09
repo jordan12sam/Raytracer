@@ -11,6 +11,8 @@
 
 class Scene {
     public:
+        Scene() {};
+        Scene(Scene& scene);
         void pushShape(Shape shape);
         void pushCube(glm::vec3 position, glm::vec4 colour, float scale, float albedo);
         void pushPyramid(glm::vec3 position, glm::vec4 colour, float scale, float albedo);
