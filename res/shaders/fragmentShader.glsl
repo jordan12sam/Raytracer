@@ -13,6 +13,8 @@ uniform int vertexSize;
 uniform int numIndices;
 uniform float AR;
 
+uniform sampler2D textureSampler;
+
 const float PI = 3.141592653589793238;
 
 struct HitInfo {
@@ -117,7 +119,10 @@ vec3 barycentric(Primitive triangle) {
 }
 
 vec4 interpolateColour(vec3 barycentricCoords, Primitive triangle) {
-    return triangle.col0 * barycentricCoords.x + triangle.col1 * barycentricCoords.y + triangle.col2 * barycentricCoords.z;
+    vec4 colour = triangle.col0 * barycentricCoords.x + triangle.col1 * barycentricCoords.y + triangle.col2 * barycentricCoords.z;
+    vec2 textureCoords = triangle.tex0 * barycentricCoords.x + triangle.tex1 * barycentricCoords.y + triangle.tex2 * barycentricCoords.z;
+    vec4 textureColour = texture(textureSampler, textureCoords);
+    return colour * textureColour;
 }
 
 vec2 interpolateTexture(vec3 barycentricCoords, Primitive triangle) {

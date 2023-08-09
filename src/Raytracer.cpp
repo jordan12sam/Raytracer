@@ -11,6 +11,7 @@
 
 #include "Window.hpp"
 #include "Camera.hpp"
+#include "Texture.hpp"
 #include "Shader.hpp"
 #include "ShaderProgram.hpp"
 #include "Renderer.hpp"
@@ -66,6 +67,9 @@ int main()
         scene.pushCube(glm::vec3(5.0f, 0.0f, -4.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 1.0f, 0.0f);
         scene.pushCube(glm::vec3(-5.0f, 0.0f, -4.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), 1.0f, 0.0f);
 
+        //Initialise Texture
+        Texture texture("../res/textures/squares.png");
+        texture.bind();
 
         // Define shaders
         Shader vertexShader("../res/shaders/vertexShader.glsl", GL_VERTEX_SHADER);
@@ -94,7 +98,7 @@ int main()
             auto end = std::chrono::high_resolution_clock::now();
             auto nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin).count();
             auto fps = 10e9 / nanoseconds;
-            std::cout << fps << std::endl;
+            //std::cout << fps << std::endl;
 
             double xpos, ypos;
             glfwGetCursorPos(window.getWindow(), &xpos, &ypos);

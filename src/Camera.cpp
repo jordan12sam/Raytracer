@@ -41,7 +41,7 @@ void Camera::updateVectors()
 }
 
 void Camera::processKeyboardInput(int deltaTime) {
-    float velocity = deltaTime * 5 * 10e-10;
+    float velocity = deltaTime * 8 * 10e-10;
     if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_W) == GLFW_PRESS)
         m_position += m_front * velocity;
     if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_S) == GLFW_PRESS)
