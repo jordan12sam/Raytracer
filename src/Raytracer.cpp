@@ -64,8 +64,9 @@ int main()
         // Initialise scene
         Scene scene;
         scene.pushCube(glm::vec3(20.0f, 3.0f, 1.0f), glm::vec4(0.725, 0.231, 0.678, 1.0), 1.0f, 0.0f);
-        scene.pushCube(glm::vec3(50.0f, 0.0f, 0.0f), glm::vec4(0.125, 0.643, 0.831, 1.0), 10.0f, 0.0f);
-        scene.pushCube(glm::vec3(-50.0f, 0.0f, 0.0f), glm::vec4(0.894, 0.482, 0.137, 1.0), 20.0f, 0.0f);
+        scene.pushCube(glm::vec3(50.0f, 6.0f, 0.0f), glm::vec4(0.125, 0.643, 0.831, 1.0), 10.0f, 0.0f);
+        scene.pushCube(glm::vec3(-50.0f, 11.0f, 0.0f), glm::vec4(0.894, 0.482, 0.137, 1.0), 20.0f, 0.0f);
+        scene.pushCube(glm::vec3(0.0f, -1050.0f, 0.0f), glm::vec4(0.345, 0.678, 0.123, 1.0), 2000.0f, 0.0f);
 
         //Initialise Texture
         Texture texture("../res/textures/squares.png");

@@ -119,10 +119,21 @@ vec3 barycentric(Primitive triangle) {
 }
 
 vec4 interpolateColour(vec3 barycentricCoords, Primitive triangle) {
+    float outlineEnabled = 1.0;
+    float textureEnabled = 0.0;
+
     vec4 colour = triangle.col0 * barycentricCoords.x + triangle.col1 * barycentricCoords.y + triangle.col2 * barycentricCoords.z;
     vec2 textureCoords = triangle.tex0 * barycentricCoords.x + triangle.tex1 * barycentricCoords.y + triangle.tex2 * barycentricCoords.z;
     vec4 textureColour = texture(textureSampler, textureCoords);
-    return colour;
+    if(textureCoords.x < 0.05 || textureCoords.x > 1 - 0.05 || textureCoords.y < 0.05 || textureCoords.y > 1 - 0.05)
+    {
+        textureColour = vec4(0.0, 0.0, 0.0, outlineEnabled);
+    }
+    else
+    {
+        textureColour = colour;
+    }
+    return (colour + textureColour) / 2;
 }
 
 vec2 interpolateTexture(vec3 barycentricCoords, Primitive triangle) {
@@ -179,7 +190,7 @@ void getPrimitive(  int i,
 
 void reflection(out Ray ray)
 {
-    for(int i = 0; i < 2; i++)
+    for(int i = 0; i < 10; i++)
     {
         //Intersection information
         vec3 closestIntersection = vec3(10000.0);
@@ -218,11 +229,10 @@ void reflection(out Ray ray)
             //Return ray information
             ray.direction = reflect(ray.direction, normal);
             ray.origin = closestIntersection;
-            ray.colour *= colour;
+            ray.colour = (ray.colour + colour) / 2;
         }
         else
         {
-            ray.colour *= vec4(1.0, 1.0, 1.0, 1.0);
             break;
         }
     }
