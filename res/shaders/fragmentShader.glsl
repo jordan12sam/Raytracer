@@ -7,7 +7,6 @@ out vec4 FragColor;
 
 uniform float vertices[1200];
 uniform int indices[1200];
-uniform float normals[1200];
 uniform int numVertices;
 uniform int vertexSize;
 uniform int numIndices;
@@ -25,7 +24,6 @@ struct HitInfo {
 
 struct Primitive {
     HitInfo hitInfo;
-    vec3 norm;
     vec3 pos0, pos1, pos2;
     vec2 tex0, tex1, tex2;
     vec4 col0, col1, col2;
@@ -124,7 +122,7 @@ vec4 interpolateColour(vec3 barycentricCoords, Primitive triangle) {
     vec4 colour = triangle.col0 * barycentricCoords.x + triangle.col1 * barycentricCoords.y + triangle.col2 * barycentricCoords.z;
     vec2 textureCoords = triangle.tex0 * barycentricCoords.x + triangle.tex1 * barycentricCoords.y + triangle.tex2 * barycentricCoords.z;
     vec4 textureColour = texture(textureSampler, textureCoords);
-    return colour * textureColour;
+    return colour;
 }
 
 vec2 interpolateTexture(vec3 barycentricCoords, Primitive triangle) {
@@ -135,11 +133,15 @@ float interpolateAlbedo(vec3 barycentricCoords, Primitive triangle) {
     return triangle.alb0 * barycentricCoords.x + triangle.alb1 * barycentricCoords.y + triangle.alb2 * barycentricCoords.z;
 }
 
+vec3 calculateNormal(Primitive triangle) {
+    vec3 edge1 = triangle.pos1 - triangle.pos0;
+    vec3 edge2 = triangle.pos2 - triangle.pos0;
+    return normalize(cross(edge1, edge2));
+}
+
 void getPrimitive(  int i,
                     out Primitive triangle)
 {
-    triangle.norm = vec3(normals[i], normals[i + 1], normals[i + 2]);
-
     triangle.pos0 = vec3(vertices[indices[i]     * vertexSize    ],
                         vertices[indices[i]     * vertexSize + 1],
                         vertices[indices[i]     * vertexSize + 2]);
@@ -177,42 +179,53 @@ void getPrimitive(  int i,
 
 void reflection(out Ray ray)
 {
-    //Intersection information
-    vec3 closestIntersection = vec3(10000.0);
-    bool intersectsAny = false;
-    vec4 colour = vec4(0.0, 0.2, 0.2, 1.0);;
-    float albedo;
-    vec3 normal;
+    for(int i = 0; i < 2; i++)
+    {
+        //Intersection information
+        vec3 closestIntersection = vec3(10000.0);
+        bool intersectsAny = false;
+        vec4 colour = vec4(1.0);
+        float albedo;
+        vec3 normal;
 
-    //Primitive information
-    Primitive triangle;
+        //Primitive information
+        Primitive triangle;
 
-    //For each primitive
-	for(int i = 0; i < numIndices; i += 3)
-	{
-        //Get primitive info
-        getPrimitive(i, triangle);
-
-        //Checks for intersection
-        intersectRayTriangle(ray, triangle);
-
-        //If this is the closest intersection, then update values
-        if (triangle.hitInfo.didHit && length(triangle.hitInfo.position) < length(closestIntersection))
+        //For each primitive
+        for(int j = 0; j < numIndices; j += 3)
         {
-            intersectsAny = true;
-            closestIntersection = triangle.hitInfo.position;
+            //Get primitive info
+            getPrimitive(j, triangle);
 
-            vec3 barycentricCoords = barycentric(triangle);
-            albedo = interpolateAlbedo(barycentricCoords, triangle);
-            normal = triangle.norm;
-            colour = interpolateColour(barycentricCoords, triangle);
+            //Checks for intersection
+            intersectRayTriangle(ray, triangle);
+
+            //If this is the closest intersection, then update values
+            if (triangle.hitInfo.didHit && length(triangle.hitInfo.position - ray.origin) < length(closestIntersection))
+            {
+                intersectsAny = true;
+                closestIntersection = triangle.hitInfo.position - ray.origin;
+
+                vec3 barycentricCoords = barycentric(triangle);
+                albedo = interpolateAlbedo(barycentricCoords, triangle);
+                normal = calculateNormal(triangle);
+                colour = interpolateColour(barycentricCoords, triangle);
+            }
         }
-	}
 
-    //Return ray information
-    ray.direction = reflect(ray.direction, normal);
-    ray.origin = closestIntersection;
-    ray.colour = colour;
+        if(intersectsAny)
+        {
+            //Return ray information
+            ray.direction = reflect(ray.direction, normal);
+            ray.origin = closestIntersection;
+            ray.colour *= colour;
+        }
+        else
+        {
+            ray.colour *= vec4(1.0, 1.0, 1.0, 1.0);
+            break;
+        }
+    }
 }
 
 void main()
@@ -226,7 +239,7 @@ void main()
     Ray ray;
     ray.origin = originn;
     ray.direction = normalize(rayy);
-    ray.colour;
+    ray.colour = vec4(1.0);
 
     // Calculate pixel colour
     reflection(ray);
