@@ -38,22 +38,24 @@ struct Ray {
     vec4 colour;
 };
 
-vec3 randomDirection(float seed) {
-    
-    float largeConst = 43756784728394978358.545642738965498243653123;
+uint hash(uint x) {
+    x = ((x >> 16u) ^ x) * 0x45d9f3b;
+    x = ((x >> 16u) ^ x) * 0x45d9f3b;
+    x = (x >> 16u) ^ x;
+    return x;
+}
+
+vec3 randomDirection(uint seed) {
     vec3 randomVec;
 
-    seed *= largeConst;
-    seed = fract(seed);
-    randomVec.x = seed;
+    seed = hash(seed + 0);
+    randomVec.x = float(seed) / float(0xffffffffu);
 
-    seed *= largeConst;
-    seed = fract(seed);
-    randomVec.y = seed;
+    seed = hash(seed + 1);
+    randomVec.y = float(seed) / float(0xffffffffu);
 
-    seed *= largeConst;
-    seed = fract(seed);
-    randomVec.z = seed;
+    seed = hash(seed + 2);
+    randomVec.z = float(seed) / float(0xffffffffu);
 
     return normalize(randomVec);
 }
