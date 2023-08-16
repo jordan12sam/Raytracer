@@ -14,7 +14,4 @@ void main()
 {
     gl_Position = vec4(pos, 0.0, 1.0);
     screen = pos;
-
-    originn = vec3(pos, -1.0) * near;
-    rayy = vec3(pos * (far - near), far + near);
 }
