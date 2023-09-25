@@ -2,6 +2,8 @@
 
 #pragma optimize(off)
 
+#define MAX_BOUNCES 10
+
 in vec2 screen;
 out vec4 FragColor;
 
@@ -183,16 +185,21 @@ void getPrimitive(  int i,
     triangle.alb2 =      vertices[indices[i + 2] * vertexSize + 9];
 }
 
-void reflection(out Ray ray)
+void rayTrace(out Ray ray)
 {
-    for(int i = 0; i <= 10; i++)
+    int bounces = -1;
+    float albedos[MAX_BOUNCES];
+    vec4 baseColours[MAX_BOUNCES];
+    vec4 colours[MAX_BOUNCES];
+
+    for(int i = 0; i <= MAX_BOUNCES; i++)
     {
         //Intersection information
         vec3 closestIntersection = vec3(10000000000.0);
         bool intersectsAny = false;
-        vec4 colour = vec4(1.0);
-        float albedo;
-        vec3 normal;
+        vec4 baseColour = vec4(1.0);
+        float albedo = 0;
+        vec3 normal = vec3(1.0);
 
         //Primitive information
         Primitive triangle;
@@ -215,29 +222,34 @@ void reflection(out Ray ray)
                 vec3 barycentricCoords = barycentric(triangle);
                 albedo = interpolateAlbedo(barycentricCoords, triangle);
                 normal = calculateNormal(triangle);
-                colour = interpolateColour(barycentricCoords, triangle);
+                baseColour = interpolateColour(barycentricCoords, triangle);
             }
         }
 
-        if(intersectsAny)
-        {
-            //Return ray information
-            ray.direction = reflect(ray.direction, normal);
-            ray.origin = closestIntersection + normal * 0.00001;
-            if(i == 0)
-            {
-                ray.colour = colour;
-            }
-            else
-            {
-                ray.colour = (ray.colour + colour) / 2;
-            }
-        }
-        else
+        //Enter the intersecting primitive info into the array
+        bounces = i;
+
+        albedos[i] = albedo;
+        baseColours[i] = baseColour;
+
+        //Update ray information for following bounces
+        ray.direction = reflect(ray.direction, normal);
+        ray.origin = closestIntersection + normal * 0.00001;
+
+        if(!intersectsAny)
         {
             break;
         }
     }
+
+    colours[bounces] = baseColours[bounces];
+
+    for(int i = bounces - 1; i >= 0; i--)
+    {
+        colours[i] = albedos[i] * colours[i + 1] + (1 - albedos[i]) * baseColours[i];
+    }
+
+    ray.colour = colours[0];
 }
 
 void main()
@@ -249,7 +261,7 @@ void main()
     ray.colour = vec4(1.0);
 
     // Calculate pixel colour
-    reflection(ray);
+    rayTrace(ray);
 
     // Draw colour
 	FragColor = ray.colour;
