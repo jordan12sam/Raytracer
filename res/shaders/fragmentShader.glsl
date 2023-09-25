@@ -2,7 +2,7 @@
 
 #pragma optimize(off)
 
-#define MAX_BOUNCES 10
+#define MAX_BOUNCES 5
 
 in vec2 screen;
 out vec4 FragColor;
@@ -28,6 +28,7 @@ struct Primitive {
     vec2 tex0, tex1, tex2;
     vec4 col0, col1, col2;
     float alb0, alb1, alb2;
+    bool textured;
 };
 
 struct Ray {
@@ -119,17 +120,23 @@ vec3 barycentric(Primitive triangle) {
 }
 
 vec4 interpolateColour(vec3 barycentricCoords, Primitive triangle) {
-    float outlineEnabled = 1.0;
-    float textureEnabled = 0.0;
+    bool outlineEnabled = true;
 
     vec4 colour = triangle.col0 * barycentricCoords.x + triangle.col1 * barycentricCoords.y + triangle.col2 * barycentricCoords.z;
     vec2 textureCoords = triangle.tex0 * barycentricCoords.x + triangle.tex1 * barycentricCoords.y + triangle.tex2 * barycentricCoords.z;
     vec4 textureColour = texture(textureSampler, textureCoords);
-    if(textureCoords.x < 0.05 || textureCoords.x > 1 - 0.05 || textureCoords.y < 0.05 || textureCoords.y > 1 - 0.05)
+    if(triangle.textured)
     {
-        colour = vec4(0.0, 0.0, 0.0, outlineEnabled);
+        if((textureCoords.x < 0.05 || textureCoords.x > 1 - 0.05 || textureCoords.y < 0.05 || textureCoords.y > 1 - 0.05) && outlineEnabled)
+        {
+            colour = vec4(0.0, 0.0, 0.0, 1.0);
+        }
+        return (colour + textureColour) / 2;
     }
-    return colour;
+    else
+    {
+        return colour;
+    }
 }
 
 vec2 interpolateTexture(vec3 barycentricCoords, Primitive triangle) {
@@ -180,9 +187,11 @@ void getPrimitive(  int i,
                         vertices[indices[i + 2] * vertexSize + 7],
                         vertices[indices[i + 2] * vertexSize + 8]);
     
-    triangle.alb0 =      vertices[indices[i]     * vertexSize + 9];
-    triangle.alb1 =      vertices[indices[i + 1] * vertexSize + 9];
-    triangle.alb2 =      vertices[indices[i + 2] * vertexSize + 9];
+    triangle.alb0 = vertices[indices[i]     * vertexSize + 9];
+    triangle.alb1 = vertices[indices[i + 1] * vertexSize + 9];
+    triangle.alb2 = vertices[indices[i + 2] * vertexSize + 9];
+
+    triangle.textured = bool(vertices[indices[i] * vertexSize + 10]);
 }
 
 void rayTrace(out Ray ray)
@@ -226,7 +235,7 @@ void rayTrace(out Ray ray)
             }
         }
 
-        //Enter the intersecting primitive info into the array
+        //Enter the intersecting surface info into arrays
         bounces = i;
 
         albedos[i] = albedo;
@@ -236,12 +245,15 @@ void rayTrace(out Ray ray)
         ray.direction = reflect(ray.direction, normal);
         ray.origin = closestIntersection + normal * 0.00001;
 
+
+        //If the ray didnt hit a surface, then break the loop
         if(!intersectsAny)
         {
             break;
         }
     }
 
+    //Calculate the colour of the pixel based on the full reflection data
     colours[bounces] = baseColours[bounces];
 
     for(int i = bounces - 1; i >= 0; i--)

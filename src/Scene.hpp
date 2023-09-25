@@ -14,8 +14,8 @@ class Scene {
         Scene() {};
         Scene(Scene& scene);
         void pushShape(Shape shape);
-        void pushCube(glm::vec3 position, glm::vec4 colour, float scale, float albedo);
-        void pushPyramid(glm::vec3 position, glm::vec4 colour, float scale, float albedo);
+        void pushCube(glm::vec3 position, glm::vec4 colour, float scale, float albedo, float textured);
+        void pushPyramid(glm::vec3 position, glm::vec4 colour, float scale, float albedo, float textured);
         void removeShape(int index);
         void compile();
         void applyMvp(glm::mat4 model, glm::mat4 view, glm::mat4 projection);

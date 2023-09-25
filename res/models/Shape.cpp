@@ -36,7 +36,7 @@ void Shape::push(std::vector<GLfloat> &sceneVertices, std::vector<GLint> &sceneI
 
 void Shape::transform()
 {
-    for (int i = 0; i < m_vertices.size(); i += 10)
+    for (int i = 0; i < m_vertices.size(); i += 11)
     {
         glm::vec3 positions = glm::vec3(m_vertices[i], m_vertices[i + 1], m_vertices[i + 2]);
         glm::mat4 translation = glm::translate(glm::mat4(1.0f), m_position);

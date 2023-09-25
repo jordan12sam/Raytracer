@@ -12,13 +12,14 @@
 class Shape
 {
     public:
-        Shape::Shape(glm::vec3 position, glm::vec4 colour, float scale, float albedo)
-        : m_position(position), m_colour(colour), m_scale(scale), m_albedo(albedo) {}
+        Shape::Shape(glm::vec3 position, glm::vec4 colour, float scale, float albedo, float textured)
+        : m_position(position), m_colour(colour), m_scale(scale), m_albedo(albedo), m_textured(textured) {}
         ~Shape();
         void push(std::vector<GLfloat> &sceneVertices, std::vector<GLint> &sceneIndices, std::vector<GLfloat> &sceneNormals);
     protected:
         float m_scale;
         float m_albedo;
+        float m_textured;
         glm::vec3 m_position;
         glm::vec4 m_colour;
         std::vector<GLfloat> m_vertices;
@@ -30,11 +31,11 @@ class Shape
 class Cube: public Shape
 {
     public:
-        Cube(glm::vec3 position, glm::vec4 colour, float scale, float albedo);
+        Cube(glm::vec3 position, glm::vec4 colour, float scale, float albedo, float textured);
 };
 
 class Pyramid: public Shape
 {
     public:
-        Pyramid(glm::vec3 position, glm::vec4 colour, float scale, float albedo);
+        Pyramid(glm::vec3 position, glm::vec4 colour, float scale, float albedo, float textured);
 };
