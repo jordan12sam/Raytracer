@@ -16,7 +16,7 @@ uniform float AR;
 uniform sampler2D textureSampler;
 
 struct Vertex {
-    bool textured;
+    float textured;
     float albedo;
     vec2 texture;
     vec4 position;
@@ -29,5 +29,10 @@ layout(std140, binding = 0) buffer VertexBuffer {
 
 void main()
 {
-    FragColor = verticesSSBO[2].colour;
+    if (bool(verticesSSBO[0].textured)){
+        FragColor = vec4(1.0);
+    }
+    else{
+        FragColor = vec4(0.0);
+    }
 }

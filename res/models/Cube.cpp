@@ -1,39 +1,39 @@
 #include "Shape.hpp"
 
-Cube::Cube(glm::vec3 position, glm::vec4 colour, float scale, float albedo, float textured)
+Cube::Cube(glm::vec4 position, glm::vec4 colour, float scale, float albedo, float textured)
 : Shape(position, colour, scale, albedo, textured)
 {
     m_vertices =
     {
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,   m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,    m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,    m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,   m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
+        Vertex(m_textured, m_albedo, glm::vec2(0.0f, 0.0f), glm::vec4(-0.5f, -0.5f,  0.5f, 1.0f), m_colour),
+        Vertex(m_textured, m_albedo, glm::vec2(1.0f, 0.0f), glm::vec4( 0.5f, -0.5f,  0.5f, 1.0f), m_colour),
+        Vertex(m_textured, m_albedo, glm::vec2(1.0f, 1.0f), glm::vec4( 0.5f,  0.5f,  0.5f, 1.0f), m_colour),
+        Vertex(m_textured, m_albedo, glm::vec2(0.0f, 1.0f), glm::vec4(-0.5f,  0.5f,  0.5f, 1.0f), m_colour),
 
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,   m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
-        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,    m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,    m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,   m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
+        Vertex(m_textured, m_albedo, glm::vec2(0.0f, 0.0f), glm::vec4(-0.5f, -0.5f, -0.5f, 1.0f), m_colour),
+        Vertex(m_textured, m_albedo, glm::vec2(1.0f, 0.0f), glm::vec4( 0.5f, -0.5f, -0.5f, 1.0f), m_colour),
+        Vertex(m_textured, m_albedo, glm::vec2(1.0f, 1.0f), glm::vec4( 0.5f,  0.5f, -0.5f, 1.0f), m_colour),
+        Vertex(m_textured, m_albedo, glm::vec2(0.0f, 1.0f), glm::vec4(-0.5f,  0.5f, -0.5f, 1.0f), m_colour),
 
-        -0.5f,  0.5f, -0.5f,  0.0f, 0.0f,   m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
-        0.5f,  0.5f, -0.5f,  1.0f, 0.0f,    m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,    m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,   m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
+        Vertex(m_textured, m_albedo, glm::vec2(0.0f, 0.0f), glm::vec4(-0.5f,  0.5f, -0.5f, 1.0f), m_colour),
+        Vertex(m_textured, m_albedo, glm::vec2(1.0f, 0.0f), glm::vec4( 0.5f,  0.5f, -0.5f, 1.0f), m_colour),
+        Vertex(m_textured, m_albedo, glm::vec2(1.0f, 1.0f), glm::vec4( 0.5f,  0.5f,  0.5f, 1.0f), m_colour),
+        Vertex(m_textured, m_albedo, glm::vec2(0.0f, 1.0f), glm::vec4(-0.5f,  0.5f,  0.5f, 1.0f), m_colour),
 
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,   m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
-        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,    m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
-        0.5f, -0.5f,  0.5f,  1.0f, 1.0f,    m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
-        -0.5f, -0.5f,  0.5f,  0.0f, 1.0f,   m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
+        Vertex(m_textured, m_albedo, glm::vec2(0.0f, 0.0f), glm::vec4(-0.5f, -0.5f, -0.5f, 1.0f), m_colour),
+        Vertex(m_textured, m_albedo, glm::vec2(1.0f, 0.0f), glm::vec4( 0.5f, -0.5f, -0.5f, 1.0f), m_colour),
+        Vertex(m_textured, m_albedo, glm::vec2(1.0f, 1.0f), glm::vec4( 0.5f, -0.5f,  0.5f, 1.0f), m_colour),
+        Vertex(m_textured, m_albedo, glm::vec2(0.0f, 1.0f), glm::vec4(-0.5f, -0.5f,  0.5f, 1.0f), m_colour),
+        
+        Vertex(m_textured, m_albedo, glm::vec2(0.0f, 0.0f), glm::vec4( 0.5f, -0.5f, -0.5f, 1.0f), m_colour),
+        Vertex(m_textured, m_albedo, glm::vec2(1.0f, 0.0f), glm::vec4( 0.5f,  0.5f, -0.5f, 1.0f), m_colour),
+        Vertex(m_textured, m_albedo, glm::vec2(1.0f, 1.0f), glm::vec4( 0.5f,  0.5f,  0.5f, 1.0f), m_colour),
+        Vertex(m_textured, m_albedo, glm::vec2(0.0f, 1.0f), glm::vec4( 0.5f, -0.5f,  0.5f, 1.0f), m_colour),
 
-        0.5f, -0.5f, -0.5f,  0.0f, 0.0f,    m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
-        0.5f,  0.5f, -0.5f,  1.0f, 0.0f,    m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,    m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
-        0.5f, -0.5f,  0.5f,  0.0f, 1.0f,    m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,   m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
-        -0.5f,  0.5f, -0.5f,  1.0f, 0.0f,   m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
-        -0.5f,  0.5f,  0.5f,  1.0f, 1.0f,   m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured,
-        -0.5f, -0.5f,  0.5f,  0.0f, 1.0f,   m_colour.x, m_colour.y, m_colour.z, m_colour.w,     m_albedo,   m_textured
+        Vertex(m_textured, m_albedo, glm::vec2(0.0f, 0.0f), glm::vec4(-0.5f, -0.5f, -0.5f, 1.0f), m_colour),
+        Vertex(m_textured, m_albedo, glm::vec2(1.0f, 0.0f), glm::vec4(-0.5f,  0.5f, -0.5f, 1.0f), m_colour),
+        Vertex(m_textured, m_albedo, glm::vec2(1.0f, 1.0f), glm::vec4(-0.5f,  0.5f,  0.5f, 1.0f), m_colour),
+        Vertex(m_textured, m_albedo, glm::vec2(0.0f, 1.0f), glm::vec4(-0.5f, -0.5f,  0.5f, 1.0f), m_colour)
     };
 
     m_indices =

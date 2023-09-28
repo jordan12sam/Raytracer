@@ -26,14 +26,14 @@ void Scene::pushShape(Shape shape)
     this->compile();
 }
 
-void Scene::pushCube(glm::vec3 position, glm::vec4 colour, float scale, float albedo, float textured)
+void Scene::pushCube(glm::vec4 position, glm::vec4 colour, float scale, float albedo, float textured)
 {
     Cube cube(position, colour, scale, albedo, textured);
     shapes.push_back(cube);
     this->compile();
 }
 
-void Scene::pushPyramid(glm::vec3 position, glm::vec4 colour, float scale, float albedo, float textured)
+void Scene::pushPyramid(glm::vec4 position, glm::vec4 colour, float scale, float albedo, float textured)
 {
     Pyramid pyramid(position, colour, scale, albedo, textured);
     shapes.push_back(pyramid);
@@ -64,13 +64,9 @@ void Scene::applyMvp(glm::mat4 model, glm::mat4 view, glm::mat4 projection)
     glm::mat4 mvp = projection * modelView;
     glm::mat4 normalMvp = projection * transpose(inverse(modelView));
 
-    for(int i = 0; i < vertices.size(); i += 11)
+    for(int i = 0; i < vertices.size(); i ++)
     {
-        glm::vec4 modelVertex(vertices[i], vertices[i+1], vertices[i+2], 1.0f);
-        glm::vec4 homogenousVertex = mvp * modelVertex;
-        vertices[i] = homogenousVertex.x;
-        vertices[i+1] = homogenousVertex.y;
-        vertices[i+2] = homogenousVertex.z;
+        vertices[i].position = mvp * vertices[i].position;
     }
 
     for(int i = 0; i < normals.size(); i += 3)

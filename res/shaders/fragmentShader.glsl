@@ -7,7 +7,6 @@
 in vec2 screen;
 out vec4 FragColor;
 
-uniform float vertices[1200];
 uniform int indices[1200];
 uniform int numVertices;
 uniform int vertexSize;
@@ -15,6 +14,18 @@ uniform int numIndices;
 uniform sampler2D textureSampler;
 
 const float PI = 3.141592653589793238;
+
+struct Vertex {
+    float textured;
+    float albedo;
+    vec2 texture;
+    vec4 position;
+    vec4 colour;
+};
+
+layout(std140, binding = 0) buffer VertexBuffer {
+    Vertex vertices[];
+};
 
 struct HitInfo {
     bool didHit;
@@ -24,11 +35,7 @@ struct HitInfo {
 
 struct Primitive {
     HitInfo hitInfo;
-    vec3 pos0, pos1, pos2;
-    vec2 tex0, tex1, tex2;
-    vec4 col0, col1, col2;
-    float alb0, alb1, alb2;
-    bool textured;
+    Vertex vertices[3];
 };
 
 struct Ray {
@@ -65,8 +72,8 @@ void intersectRayTriangle(Ray ray, out Primitive triangle)
 {
     const float EPSILON = 0.000000000000001;
 
-    vec3 edge1 = triangle.pos1 - triangle.pos0;
-    vec3 edge2 = triangle.pos2 - triangle.pos0;
+    vec3 edge1 = vec3(triangle.vertices[1].position - triangle.vertices[0].position);
+    vec3 edge2 = vec3(triangle.vertices[2].position - triangle.vertices[0].position);
     vec3 h = cross(ray.direction, edge2);
     float a = dot(edge1, h);
     if (a > -EPSILON && a < EPSILON) {
@@ -75,7 +82,7 @@ void intersectRayTriangle(Ray ray, out Primitive triangle)
     }
 
     float f = 1.0 / a;
-    vec3 s = -triangle.pos0;
+    vec3 s = -vec3(triangle.vertices[0].position);
     float u = f * dot(s, h);
     if (u < 0.0 || u > 1.0) {
         triangle.hitInfo.didHit = false; // intersection is outside the triangle
@@ -100,9 +107,9 @@ void intersectRayTriangle(Ray ray, out Primitive triangle)
 }
 
 vec3 barycentric(Primitive triangle) {
-    vec3 v0 = triangle.pos1 - triangle.pos0;
-    vec3 v1 = triangle.pos2 - triangle.pos0;
-    vec3 v2 = triangle.hitInfo.position - triangle.pos0;
+    vec3 v0 = vec3(triangle.vertices[1].position - triangle.vertices[0].position);
+    vec3 v1 = vec3(triangle.vertices[2].position - triangle.vertices[0].position);
+    vec3 v2 = triangle.hitInfo.position - vec3(triangle.vertices[0].position);
 
     float d00 = dot(v0, v0);
     float d01 = dot(v0, v1);
@@ -119,13 +126,21 @@ vec3 barycentric(Primitive triangle) {
     return vec3(u, v, w);
 }
 
+vec2 interpolateTexture(vec3 barycentricCoords, Primitive triangle) {
+    return triangle.vertices[0].texture * barycentricCoords.x + triangle.vertices[1].texture * barycentricCoords.y + triangle.vertices[2].texture * barycentricCoords.z;
+}
+
+float interpolateAlbedo(vec3 barycentricCoords, Primitive triangle) {
+    return triangle.vertices[0].albedo * barycentricCoords.x + triangle.vertices[1].albedo * barycentricCoords.y + triangle.vertices[2].albedo * barycentricCoords.z;
+}
+
 vec4 interpolateColour(vec3 barycentricCoords, Primitive triangle) {
     bool outlineEnabled = true;
 
-    vec4 colour = triangle.col0 * barycentricCoords.x + triangle.col1 * barycentricCoords.y + triangle.col2 * barycentricCoords.z;
-    vec2 textureCoords = triangle.tex0 * barycentricCoords.x + triangle.tex1 * barycentricCoords.y + triangle.tex2 * barycentricCoords.z;
+    vec4 colour = triangle.vertices[0].colour * barycentricCoords.x + triangle.vertices[1].colour * barycentricCoords.y + triangle.vertices[2].colour * barycentricCoords.z;
+    vec2 textureCoords = interpolateTexture(barycentricCoords, triangle);
     vec4 textureColour = texture(textureSampler, textureCoords);
-    if(triangle.textured)
+    if(bool(triangle.vertices[0].textured))
     {
         if((textureCoords.x < 0.05 || textureCoords.x > 1 - 0.05 || textureCoords.y < 0.05 || textureCoords.y > 1 - 0.05) && outlineEnabled)
         {
@@ -139,17 +154,9 @@ vec4 interpolateColour(vec3 barycentricCoords, Primitive triangle) {
     }
 }
 
-vec2 interpolateTexture(vec3 barycentricCoords, Primitive triangle) {
-    return triangle.tex0 * barycentricCoords.x + triangle.tex1 * barycentricCoords.y + triangle.tex2 * barycentricCoords.z;
-}
-
-float interpolateAlbedo(vec3 barycentricCoords, Primitive triangle) {
-    return triangle.alb0 * barycentricCoords.x + triangle.alb1 * barycentricCoords.y + triangle.alb2 * barycentricCoords.z;
-}
-
 vec3 calculateNormal(Primitive triangle) {
-    vec3 edge1 = triangle.pos1 - triangle.pos0;
-    vec3 edge2 = triangle.pos2 - triangle.pos0;
+    vec3 edge1 = vec3(triangle.vertices[1].position - triangle.vertices[0].position);
+    vec3 edge2 = vec3(triangle.vertices[2].position - triangle.vertices[0].position);
     vec3 normal = normalize(cross(edge1, edge2));
     return normal;
 }
@@ -157,41 +164,9 @@ vec3 calculateNormal(Primitive triangle) {
 void getPrimitive(  int i,
                     out Primitive triangle)
 {
-    triangle.pos0 = vec3(vertices[indices[i]     * vertexSize    ],
-                        vertices[indices[i]     * vertexSize + 1],
-                        vertices[indices[i]     * vertexSize + 2]);
-    triangle.pos1 = vec3(vertices[indices[i + 1] * vertexSize    ],
-                        vertices[indices[i + 1] * vertexSize + 1],
-                        vertices[indices[i + 1] * vertexSize + 2]);
-    triangle.pos2 = vec3(vertices[indices[i + 2] * vertexSize    ],
-                        vertices[indices[i + 2] * vertexSize + 1],
-                        vertices[indices[i + 2] * vertexSize + 2]);
-
-    triangle.tex0 = vec2(vertices[indices[i]     * vertexSize + 3],
-                        vertices[indices[i]     * vertexSize + 4]);
-    triangle.tex1 = vec2(vertices[indices[i + 1] * vertexSize + 3],
-                        vertices[indices[i + 1] * vertexSize + 4]);
-    triangle.tex2 = vec2(vertices[indices[i + 2] * vertexSize + 3],
-                        vertices[indices[i + 2] * vertexSize + 4]);
-
-    triangle.col0 = vec4(vertices[indices[i]     * vertexSize + 5],
-                        vertices[indices[i]     * vertexSize + 6],
-                        vertices[indices[i]     * vertexSize + 7],
-                        vertices[indices[i]     * vertexSize + 8]);
-    triangle.col1 = vec4(vertices[indices[i + 1] * vertexSize + 5],
-                        vertices[indices[i + 1] * vertexSize + 6],
-                        vertices[indices[i + 1] * vertexSize + 7],
-                        vertices[indices[i + 1] * vertexSize + 8]);
-    triangle.col2 = vec4(vertices[indices[i + 2] * vertexSize + 5],
-                        vertices[indices[i + 2] * vertexSize + 6],
-                        vertices[indices[i + 2] * vertexSize + 7],
-                        vertices[indices[i + 2] * vertexSize + 8]);
-    
-    triangle.alb0 = vertices[indices[i]     * vertexSize + 9];
-    triangle.alb1 = vertices[indices[i + 1] * vertexSize + 9];
-    triangle.alb2 = vertices[indices[i + 2] * vertexSize + 9];
-
-    triangle.textured = bool(vertices[indices[i] * vertexSize + 10]);
+    triangle.vertices[0] = vertices[indices[i]];
+    triangle.vertices[1] = vertices[indices[i+1]];
+    triangle.vertices[2] = vertices[indices[i+2]];
 }
 
 void rayTrace(out Ray ray)

@@ -19,6 +19,7 @@
 #include "VertexArray.hpp"
 #include "VertexBufferLayout.hpp"
 #include "Scene.hpp"
+#include "Vertex.hpp"
 #include "../res/models/Shape.hpp"
 
 #include <iostream>
@@ -43,20 +44,6 @@ GLuint quadIndices[] =
 	0, 3, 2
 };
 
-// Define the Vertex struct
-struct Vertex {
-    bool textured;
-    float albedo;
-    glm::vec2 texture;
-    glm::vec4 position;
-    glm::vec4 colour;
-
-    Vertex(glm::vec4 pos, glm::vec2 tex, glm::vec4 col, float alb, bool texd)
-        : position(pos), texture(tex), colour(col), albedo(alb), textured(texd) {}
-
-    Vertex() = default;
-};
-
 int main()
 {
     {    
@@ -77,10 +64,10 @@ int main()
 
         // Initialise scene
         Scene scene;
-        scene.pushCube(glm::vec3(10.0f, 6.0f, 10.0f), glm::vec4(0.725, 0.231, 0.678, 1.0), 1.0f, 0.0f, 1.0f);
-        scene.pushCube(glm::vec3(20.0f, 10.0f, 10.0f), glm::vec4(0.125, 0.643, 0.831, 1.0), 10.0f, 0.0f, 1.0f);
-        scene.pushCube(glm::vec3(-20.0f, 17.0f, 10.0f), glm::vec4(0.894, 0.482, 0.137, 1.0), 20.0f, 0.8f, 1.0f);
-        scene.pushCube(glm::vec3(0.0f, -1050.0f, 0.0f), glm::vec4(0.345, 0.678, 0.123, 1.0), 2000.0f, 0.2f, 0.0f);
+        scene.pushCube(glm::vec4(10.0f, 6.0f, 10.0f, 1.0f), glm::vec4(0.725, 0.231, 0.678, 1.0), 1.0f, 0.0f, 1.0f);
+        scene.pushCube(glm::vec4(20.0f, 10.0f, 10.0f, 1.0f), glm::vec4(0.125, 0.643, 0.831, 1.0), 10.0f, 0.0f, 1.0f);
+        scene.pushCube(glm::vec4(-20.0f, 17.0f, 10.0f, 1.0f), glm::vec4(0.894, 0.482, 0.137, 1.0), 20.0f, 0.8f, 1.0f);
+        scene.pushCube(glm::vec4(0.0f, -1050.0f, 0.0f, 1.0f), glm::vec4(0.345, 0.678, 0.123, 1.0), 2000.0f, 0.2f, 0.0f);
 
         //Initialise Texture
         Texture texture("../res/textures/squares.png");
@@ -88,36 +75,16 @@ int main()
 
         // Define shaders
         Shader vertexShader("../res/shaders/vertexShader.glsl", GL_VERTEX_SHADER);
-        Shader fragmentShader("../res/shaders/testFrag.glsl", GL_FRAGMENT_SHADER);
+        Shader fragmentShader("../res/shaders/fragmentShader.glsl", GL_FRAGMENT_SHADER);
         ShaderProgram shaderProgram;
         shaderProgram.attach(vertexShader);
         shaderProgram.attach(fragmentShader);
         shaderProgram.link();
         shaderProgram.bind();
 
-        // Assuming you have an array of vertices
-        Vertex vertices[3];
-
-        vertices[0] = Vertex(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 0.0f, false);
-        vertices[1] = Vertex(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 0.0f, false);
-        vertices[2] = Vertex(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 0.0f, false);
-
-        std::cout << sizeof(Vertex) << std::endl;
-
-        // Create and bind the SSBO
         GLuint ssbo;
         glGenBuffers(1, &ssbo);
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-
-        // Allocate storage for the SSBO
-        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-        // Bind the SSBO to the binding point specified in the shader
-        GLuint bindingPoint = 0;  // Must match the binding point in the shader
-        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, bindingPoint, ssbo);
-
-        // Unbind the SSBO when you're done
-        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         Camera camera;
         glm::mat4 view = camera.getViewMatrix();
@@ -156,12 +123,14 @@ int main()
 
             shaderProgram.bind();
             shaderProgram.setMat4("inverseProjectionView", inverseProjectionView);
-            shaderProgram.setFloatArray("vertices", &homogenousScene.vertices[0], (int)homogenousScene.vertices.size());
             shaderProgram.setIntArray("indices", &homogenousScene.indices[0], (int)homogenousScene.indices.size());
             shaderProgram.setFloatArray("normals", &homogenousScene.normals[0], (int)homogenousScene.normals.size());
             shaderProgram.setInt("numVertices", (int)homogenousScene.vertices.size());
             shaderProgram.setInt("vertexSize", 11);
             shaderProgram.setInt("numIndices", (int)homogenousScene.indices.size());
+
+            glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Vertex) * (int)homogenousScene.vertices.size(), &homogenousScene.vertices[0], GL_STATIC_DRAW);
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
 
             renderer.draw(shaderProgram, quadVAO);
 
