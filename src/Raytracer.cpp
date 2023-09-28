@@ -43,6 +43,20 @@ GLuint quadIndices[] =
 	0, 3, 2
 };
 
+// Define the Vertex struct
+struct Vertex {
+    bool textured;
+    float albedo;
+    glm::vec2 texture;
+    glm::vec4 position;
+    glm::vec4 colour;
+
+    Vertex(glm::vec4 pos, glm::vec2 tex, glm::vec4 col, float alb, bool texd)
+        : position(pos), texture(tex), colour(col), albedo(alb), textured(texd) {}
+
+    Vertex() = default;
+};
+
 int main()
 {
     {    
@@ -56,7 +70,7 @@ int main()
         // Define vertex buffer, vertex array, and index buffer objects
         VertexBufferLayout quadLayout;
         quadLayout.push(GL_FLOAT, 2);
-        VertexBuffer quadVBO(quadVertices, 20 * sizeof(GLfloat));
+        VertexBuffer quadVBO(quadVertices, 8 * sizeof(GLfloat));
         VertexArray quadVAO;
         quadVAO.addBuffer(quadVBO, quadLayout);
         IndexBuffer quadIBO(quadIndices, 6);
@@ -74,12 +88,36 @@ int main()
 
         // Define shaders
         Shader vertexShader("../res/shaders/vertexShader.glsl", GL_VERTEX_SHADER);
-        Shader fragmentShader("../res/shaders/fragmentShader.glsl", GL_FRAGMENT_SHADER);
+        Shader fragmentShader("../res/shaders/testFrag.glsl", GL_FRAGMENT_SHADER);
         ShaderProgram shaderProgram;
         shaderProgram.attach(vertexShader);
         shaderProgram.attach(fragmentShader);
         shaderProgram.link();
         shaderProgram.bind();
+
+        // Assuming you have an array of vertices
+        Vertex vertices[3];
+
+        vertices[0] = Vertex(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 0.0f, false);
+        vertices[1] = Vertex(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 0.0f, false);
+        vertices[2] = Vertex(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 0.0f, false);
+
+        std::cout << sizeof(Vertex) << std::endl;
+
+        // Create and bind the SSBO
+        GLuint ssbo;
+        glGenBuffers(1, &ssbo);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+
+        // Allocate storage for the SSBO
+        glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        // Bind the SSBO to the binding point specified in the shader
+        GLuint bindingPoint = 0;  // Must match the binding point in the shader
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, bindingPoint, ssbo);
+
+        // Unbind the SSBO when you're done
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
         Camera camera;
         glm::mat4 view = camera.getViewMatrix();

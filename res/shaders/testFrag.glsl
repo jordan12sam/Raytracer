@@ -15,33 +15,19 @@ uniform float AR;
 
 uniform sampler2D textureSampler;
 
-// Simple hash function
-uint hash(uint x) {
-    x = ((x >> 16u) ^ x) * 0x45d9f3b;
-    x = ((x >> 16u) ^ x) * 0x45d9f3b;
-    x = (x >> 16u) ^ x;
-    return x;
-}
+struct Vertex {
+    bool textured;
+    float albedo;
+    vec2 texture;
+    vec4 position;
+    vec4 colour;
+};
 
-vec3 randomDirection(uint seed) {
-    vec3 randomVec;
-
-    seed = hash(seed + 0);
-    randomVec.x = float(seed) / float(0xffffffffu);
-
-    seed = hash(seed + 1);
-    randomVec.y = float(seed) / float(0xffffffffu);
-
-    seed = hash(seed + 2);
-    randomVec.z = float(seed) / float(0xffffffffu);
-
-    return normalize(randomVec);
-}
+layout(std140, binding = 0) buffer VertexBuffer {
+    Vertex verticesSSBO[];
+};
 
 void main()
 {
-    // Use a changing seed value, such as the frame counter
-    uint seed = uint(gl_FragCoord.x) + uint(gl_FragCoord.y) * 1024u;
-    vec3 dir = randomDirection(seed);
-    FragColor = vec4(dir, 1.0);
+    FragColor = verticesSSBO[2].colour;
 }
