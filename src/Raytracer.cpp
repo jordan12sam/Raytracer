@@ -71,6 +71,8 @@ int main()
         scene.pushCube(glm::vec4(0.0f, -1000.0f, 0.0f, 1.0f), glm::vec4(0.4, 0.4, 0.4, 1.0), 2000.0f, 0.1f, 0.0f);
         scene.pushCube(glm::vec4(2020.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.95, 1.0, 0.95, 1.0), 4000.0f, 0.9f, 0.0f);
 
+        scene.worldSpace.light = glm::vec4(0.0f, 50.0f, 0.0f, 1.0f);
+
         //Initialise Texture
         Texture texture("../res/textures/squares.png");
         texture.bind();
@@ -89,16 +91,11 @@ int main()
         glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
 
         Camera camera;
-        glm::mat4 view = camera.getViewMatrix();
-        float nearPlane = 1.0f;
-        float farPlane = 100.0f;
-        float fov = 45.0f;
-        glm::mat4 projection = glm::perspective(fov, AR, nearPlane, farPlane);
         glm::mat4 model(1.0f);
+        glm::mat4 view = camera.getViewMatrix();
+        glm::mat4 projection(1.0f);
 
         shaderProgram.setFloat("AR", AR);
-        shaderProgram.setFloat("near", nearPlane);
-        shaderProgram.setFloat("far", farPlane);
 
         auto begin = std::chrono::high_resolution_clock::now();
         while (window.isOpen())
@@ -117,21 +114,16 @@ int main()
             camera.processMouseInput(xpos, ypos);
 
             view = camera.getViewMatrix();
-            glm::mat4 projectionView = projection * view;
-            glm::mat4 inverseProjectionView = glm::inverse(projectionView);
 
-            Scene homogenousScene(scene);
-            homogenousScene.applyMvp(model, view, projection);
+            scene.applyMvp(model, view, projection);
 
             shaderProgram.bind();
-            shaderProgram.setMat4("inverseProjectionView", inverseProjectionView);
-            shaderProgram.setIntArray("indices", &homogenousScene.indices[0], (int)homogenousScene.indices.size());
-            shaderProgram.setFloatArray("normals", &homogenousScene.normals[0], (int)homogenousScene.normals.size());
-            shaderProgram.setInt("numVertices", (int)homogenousScene.vertices.size());
-            shaderProgram.setInt("vertexSize", 11);
-            shaderProgram.setInt("numIndices", (int)homogenousScene.indices.size());
+            shaderProgram.setIntArray("indices", &scene.indices[0], (int)scene.indices.size());
+            shaderProgram.setInt("numVertices", (int)scene.cameraSpace.vertices.size());
+            shaderProgram.setInt("numIndices", (int)scene.indices.size());
+            shaderProgram.setVec4("light", scene.cameraSpace.light);
 
-            glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Vertex) * (int)homogenousScene.vertices.size(), &homogenousScene.vertices[0], GL_STATIC_DRAW);
+            glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Vertex) * (int)scene.cameraSpace.vertices.size(), &scene.cameraSpace.vertices[0], GL_STATIC_DRAW);
             glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
 
             renderer.draw(shaderProgram, quadVAO);

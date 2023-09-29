@@ -43,9 +43,9 @@ void Camera::updateVectors()
 void Camera::processKeyboardInput(int deltaTime) {
     float velocity = deltaTime * 8 * 10e-10;
     if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_W) == GLFW_PRESS)
-        m_position += m_front * velocity;
-    if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_S) == GLFW_PRESS)
         m_position -= m_front * velocity;
+    if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_S) == GLFW_PRESS)
+        m_position += m_front * velocity;
     if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_A) == GLFW_PRESS)
         m_position -= m_right * velocity;
     if (glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_D) == GLFW_PRESS)
@@ -76,8 +76,8 @@ void Camera::processMouseInput(float xoffset, float yoffset, bool constrainPitch
     m_lastX = xoffset;
     m_lastY = yoffset;
 
-    m_yaw += xVelocity;
-    m_pitch += yVelocity;
+    m_yaw -= xVelocity;
+    m_pitch -= yVelocity;
 
     if (constrainPitch) {
         if (m_pitch > 89.0f)

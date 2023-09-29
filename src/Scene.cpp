@@ -6,18 +6,12 @@ Scene::Scene(Scene& scene)
     {
         shapes.push_back(scene.shapes[i]);
     }
-    for(int i = 0; i < scene.vertices.size(); i++)
-    {
-        vertices.push_back(scene.vertices[i]);
-    }
     for(int i = 0; i < scene.indices.size(); i++)
     {
         indices.push_back(scene.indices[i]);
     }
-        for(int i = 0; i < scene.normals.size(); i++)
-    {
-        normals.push_back(scene.normals[i]);
-    }
+    worldSpace = scene.worldSpace;
+    cameraSpace = scene.cameraSpace;
 }
 
 void Scene::pushShape(Shape shape)
@@ -48,33 +42,39 @@ void Scene::removeShape(int index)
 
 void Scene::compile()
 {
-    vertices.clear();
     indices.clear();
-    normals.clear();
+    worldSpace.vertices.clear();
+    worldSpace.normals.clear();
 
     for(int i = 0; i < shapes.size(); i++)
     {
-        shapes[i].push(vertices, indices, normals);
+        shapes[i].push(worldSpace.vertices, indices, worldSpace.normals);
     }
 }
 
 void Scene::applyMvp(glm::mat4 model, glm::mat4 view, glm::mat4 projection)
 {
+    cameraSpace.vertices.clear();
+    cameraSpace.normals.clear();
+
     glm::mat4 modelView = view * model;
     glm::mat4 mvp = projection * modelView;
-    glm::mat4 normalMvp = projection * transpose(inverse(modelView));
+    glm::mat4 normalMvp = projection * transpose(inverse(modelView)); 
 
-    for(int i = 0; i < vertices.size(); i ++)
+    for(int i = 0; i < worldSpace.vertices.size(); i++)
     {
-        vertices[i].position = mvp * vertices[i].position;
+        cameraSpace.vertices.push_back(worldSpace.vertices[i]);
+        cameraSpace.vertices[i].position = mvp * worldSpace.vertices[i].position;
     }
 
-    for(int i = 0; i < normals.size(); i += 3)
+    cameraSpace.light = mvp * worldSpace.light;
+
+    for(int i = 0; i < worldSpace.normals.size(); i += 3)
     {
-        glm::vec4 modelNormal(normals[i], normals[i+1], normals[i+2], 1.0f);
+        glm::vec4 modelNormal(worldSpace.normals[i], worldSpace.normals[i+1], worldSpace.normals[i+2], 1.0f);
         glm::vec4 homogenousNormal = normalMvp * modelNormal;
-        normals[i] = homogenousNormal.x;
-        normals[i+1] = homogenousNormal.y;
-        normals[i+2] = homogenousNormal.z;
+        cameraSpace.normals.push_back(homogenousNormal.x);
+        cameraSpace.normals.push_back(homogenousNormal.y);
+        cameraSpace.normals.push_back(homogenousNormal.z);
     }
 }

@@ -10,6 +10,12 @@
 #include <iostream>
 #include <string>
 
+struct Space {
+    std::vector<Vertex> vertices;
+    std::vector<GLfloat> normals;
+    glm::vec4 light;
+};
+
 class Scene {
     public:
         Scene() {};
@@ -21,8 +27,8 @@ class Scene {
         void compile();
         void applyMvp(glm::mat4 model, glm::mat4 view, glm::mat4 projection);
         std::vector<Shape> shapes;
-        std::vector<Vertex> vertices;
         std::vector<GLint> indices;
-        std::vector<GLfloat> normals;
+        Space worldSpace;
+        Space cameraSpace;
 
 };
