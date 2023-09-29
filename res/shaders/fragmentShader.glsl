@@ -9,7 +9,6 @@ out vec4 FragColor;
 
 uniform int indices[1200];
 uniform int numVertices;
-uniform int vertexSize;
 uniform int numIndices;
 uniform sampler2D textureSampler;
 
@@ -217,7 +216,7 @@ void rayTrace(out Ray ray)
         baseColours[i] = baseColour;
 
         //Update ray information for following bounces
-        ray.direction = reflect(ray.direction, normal);
+        ray.direction = normalize(reflect(ray.direction, normal));
         ray.origin = closestIntersection + normal * 0.00001;
 
 
@@ -244,7 +243,7 @@ void main()
     // Initialise ray properties
     Ray ray;
     ray.origin = vec3(0.0);
-    ray.direction = vec3(screen.x, screen.y, 1.0);
+    ray.direction = normalize(vec3(screen.x, screen.y, 1.0));
     ray.colour = vec4(1.0);
 
     // Calculate pixel colour

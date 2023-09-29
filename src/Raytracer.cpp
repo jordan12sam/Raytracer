@@ -26,8 +26,8 @@
 #include <vector>
 #include <chrono>
 
-unsigned int WIDTH = 1600;
-unsigned int HEIGHT = 900;
+unsigned int WIDTH = 1920;
+unsigned int HEIGHT = 1080;
 float AR = (float)WIDTH / (float)HEIGHT;
 
 GLfloat quadVertices[] =
@@ -64,10 +64,12 @@ int main()
 
         // Initialise scene
         Scene scene;
-        scene.pushCube(glm::vec4(10.0f, 6.0f, 10.0f, 1.0f), glm::vec4(0.725, 0.231, 0.678, 1.0), 1.0f, 0.0f, 1.0f);
-        scene.pushCube(glm::vec4(20.0f, 10.0f, 10.0f, 1.0f), glm::vec4(0.125, 0.643, 0.831, 1.0), 10.0f, 0.0f, 1.0f);
-        scene.pushCube(glm::vec4(-20.0f, 17.0f, 10.0f, 1.0f), glm::vec4(0.894, 0.482, 0.137, 1.0), 20.0f, 0.8f, 1.0f);
-        scene.pushCube(glm::vec4(0.0f, -1050.0f, 0.0f, 1.0f), glm::vec4(0.345, 0.678, 0.123, 1.0), 2000.0f, 0.2f, 0.0f);
+        scene.pushCube(glm::vec4(-2.0f, 6.0f, 3.0f, 1.0f), glm::vec4(0.8, 0.4, 0.2, 1.0), 2.0f, 0.3f, 0.0f);
+        scene.pushCube(glm::vec4(0.5f, 6.0f, -5.0f, 1.0f), glm::vec4(0.2, 0.7, 0.5, 1.0), 2.0f, 0.4f, 0.0f);
+        scene.pushCube(glm::vec4(3.0f, 9.0f, 4.0f, 1.0f), glm::vec4(0.7, 0.1, 0.3, 1.0), 6.0f, 0.2f, 0.0f);
+        scene.pushCube(glm::vec4(1.0f, 8.0f, -3.0f, 1.0f), glm::vec4(0.5, 0.8, 0.2, 1.0), 4.0f, 0.3f, 0.0f);
+        scene.pushCube(glm::vec4(0.0f, -1000.0f, 0.0f, 1.0f), glm::vec4(0.4, 0.4, 0.4, 1.0), 2000.0f, 0.1f, 0.0f);
+        scene.pushCube(glm::vec4(2020.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.95, 1.0, 0.95, 1.0), 4000.0f, 0.9f, 0.0f);
 
         //Initialise Texture
         Texture texture("../res/textures/squares.png");
@@ -90,7 +92,7 @@ int main()
         glm::mat4 view = camera.getViewMatrix();
         float nearPlane = 1.0f;
         float farPlane = 100.0f;
-        float fov = 90.0f;
+        float fov = 45.0f;
         glm::mat4 projection = glm::perspective(fov, AR, nearPlane, farPlane);
         glm::mat4 model(1.0f);
 
