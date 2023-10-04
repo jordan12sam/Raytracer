@@ -41,41 +41,17 @@ struct Ray {
     vec4 colour;
 };
 
-void testRayPrimitiveIntersection(Ray ray, out Primitive triangle) {
-    const float EPSILON = 0.000000000000001;
+void getPrimitive(  int i, out Primitive triangle) {
+    triangle.vertices[0] = vertices[indices[i]];
+    triangle.vertices[1] = vertices[indices[i+1]];
+    triangle.vertices[2] = vertices[indices[i+2]];
+}
 
+vec3 calculateNormal(Primitive triangle) {
     vec3 edge1 = vec3(triangle.vertices[1].position - triangle.vertices[0].position);
     vec3 edge2 = vec3(triangle.vertices[2].position - triangle.vertices[0].position);
-    vec3 h = cross(ray.direction, edge2);
-    float a = dot(edge1, h);
-    if (a > -EPSILON && a < EPSILON) {
-        triangle.intersection.exists = false;
-        return;
-    }
-
-    float f = 1.0 / a;
-    vec3 s = -vec3(triangle.vertices[0].position);
-    float u = f * dot(s, h);
-    if (u < 0.0 || u > 1.0) {
-        triangle.intersection.exists = false;
-        return;
-    }
-
-    vec3 q = cross(s, edge1);
-    float v = f * dot(ray.direction, q);
-    if (v < 0.0 || u + v > 1.0) {
-        triangle.intersection.exists = false;
-        return;
-    }
-
-    float t = f * dot(edge2, q);
-    if (t > EPSILON) {
-        triangle.intersection.position = ray.direction * t;
-        triangle.intersection.exists = true;
-        return;
-    }
-
-    triangle.intersection.exists = false;
+    vec3 normal = normalize(cross(edge1, edge2));
+    return normal;
 }
 
 vec3 calculateBarycentricCoordinates(Primitive triangle) {
@@ -126,17 +102,41 @@ vec4 interpolateColour(vec3 barycentricCoords, Primitive triangle) {
     }
 }
 
-vec3 calculateNormal(Primitive triangle) {
+void testRayPrimitiveIntersection(Ray ray, out Primitive triangle) {
+    const float EPSILON = 0.000000000000001;
+
     vec3 edge1 = vec3(triangle.vertices[1].position - triangle.vertices[0].position);
     vec3 edge2 = vec3(triangle.vertices[2].position - triangle.vertices[0].position);
-    vec3 normal = normalize(cross(edge1, edge2));
-    return normal;
-}
+    vec3 h = cross(ray.direction, edge2);
+    float a = dot(edge1, h);
+    if (a > -EPSILON && a < EPSILON) {
+        triangle.intersection.exists = false;
+        return;
+    }
 
-void getPrimitive(  int i, out Primitive triangle) {
-    triangle.vertices[0] = vertices[indices[i]];
-    triangle.vertices[1] = vertices[indices[i+1]];
-    triangle.vertices[2] = vertices[indices[i+2]];
+    float f = 1.0 / a;
+    vec3 s = -vec3(triangle.vertices[0].position);
+    float u = f * dot(s, h);
+    if (u < 0.0 || u > 1.0) {
+        triangle.intersection.exists = false;
+        return;
+    }
+
+    vec3 q = cross(s, edge1);
+    float v = f * dot(ray.direction, q);
+    if (v < 0.0 || u + v > 1.0) {
+        triangle.intersection.exists = false;
+        return;
+    }
+
+    float t = f * dot(edge2, q);
+    if (t > EPSILON) {
+        triangle.intersection.position = ray.direction * t;
+        triangle.intersection.exists = true;
+        return;
+    }
+
+    triangle.intersection.exists = false;
 }
 
 void rayTrace(out Ray ray) {
