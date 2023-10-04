@@ -1,9 +1,5 @@
 #version 460 core
 
-#pragma optimize(off)
-
-#define MAX_BOUNCES 5
-
 in vec2 screen;
 out vec4 FragColor;
 
@@ -11,6 +7,8 @@ uniform int indices[1200];
 uniform int numVertices;
 uniform int numIndices;
 uniform sampler2D textureSampler;
+
+#define MAX_BOUNCES 10
 
 const float PI = 3.141592653589793238;
 
@@ -26,14 +24,14 @@ layout(std140, binding = 0) buffer VertexBuffer {
     Vertex vertices[];
 };
 
-struct HitInfo {
-    bool didHit;
+struct Intersection {
+    bool exists;
     vec3 position;
-    vec3 normal;
 };
 
 struct Primitive {
-    HitInfo hitInfo;
+    Intersection intersection;
+    vec3 normal;
     Vertex vertices[3];
 };
 
@@ -43,32 +41,7 @@ struct Ray {
     vec4 colour;
 };
 
-uint hash(uint x) {
-    x = ((x >> 16u) ^ x) * 0x45d9f3b;
-    x = ((x >> 16u) ^ x) * 0x45d9f3b;
-    x = (x >> 16u) ^ x;
-    return x;
-}
-
-vec3 randomDirection(uint seed) {
-    vec3 randomVec;
-
-    seed = hash(seed + 0);
-    randomVec.x = float(seed) / float(0xffffffffu);
-
-    seed = hash(seed + 1);
-    randomVec.y = float(seed) / float(0xffffffffu);
-
-    seed = hash(seed + 2);
-    randomVec.z = float(seed) / float(0xffffffffu);
-
-    return normalize(randomVec);
-}
-
-
-//Möller–Trumbore intersection algorithm
-void intersectRayTriangle(Ray ray, out Primitive triangle)
-{
+void testRayPrimitiveIntersection(Ray ray, out Primitive triangle) {
     const float EPSILON = 0.000000000000001;
 
     vec3 edge1 = vec3(triangle.vertices[1].position - triangle.vertices[0].position);
@@ -76,7 +49,7 @@ void intersectRayTriangle(Ray ray, out Primitive triangle)
     vec3 h = cross(ray.direction, edge2);
     float a = dot(edge1, h);
     if (a > -EPSILON && a < EPSILON) {
-        triangle.hitInfo.didHit = false; // ray is parallel to triangle
+        triangle.intersection.exists = false;
         return;
     }
 
@@ -84,31 +57,31 @@ void intersectRayTriangle(Ray ray, out Primitive triangle)
     vec3 s = -vec3(triangle.vertices[0].position);
     float u = f * dot(s, h);
     if (u < 0.0 || u > 1.0) {
-        triangle.hitInfo.didHit = false; // intersection is outside the triangle
+        triangle.intersection.exists = false;
         return;
     }
 
     vec3 q = cross(s, edge1);
     float v = f * dot(ray.direction, q);
     if (v < 0.0 || u + v > 1.0) {
-        triangle.hitInfo.didHit = false; // intersection is outside the triangle
+        triangle.intersection.exists = false;
         return;
     }
 
     float t = f * dot(edge2, q);
     if (t > EPSILON) {
-        triangle.hitInfo.position = ray.direction * t;
-        triangle.hitInfo.didHit = true; // intersection is valid
+        triangle.intersection.position = ray.direction * t;
+        triangle.intersection.exists = true;
         return;
     }
 
-    triangle.hitInfo.didHit = false; // intersection is behind the ray
+    triangle.intersection.exists = false;
 }
 
-vec3 barycentric(Primitive triangle) {
+vec3 calculateBarycentricCoordinates(Primitive triangle) {
     vec3 v0 = vec3(triangle.vertices[1].position - triangle.vertices[0].position);
     vec3 v1 = vec3(triangle.vertices[2].position - triangle.vertices[0].position);
-    vec3 v2 = triangle.hitInfo.position - vec3(triangle.vertices[0].position);
+    vec3 v2 = triangle.intersection.position - vec3(triangle.vertices[0].position);
 
     float d00 = dot(v0, v0);
     float d01 = dot(v0, v1);
@@ -160,78 +133,53 @@ vec3 calculateNormal(Primitive triangle) {
     return normal;
 }
 
-void getPrimitive(  int i,
-                    out Primitive triangle)
-{
+void getPrimitive(  int i, out Primitive triangle) {
     triangle.vertices[0] = vertices[indices[i]];
     triangle.vertices[1] = vertices[indices[i+1]];
     triangle.vertices[2] = vertices[indices[i+2]];
 }
 
-void rayTrace(out Ray ray)
-{
+void rayTrace(out Ray ray) {
     int bounces = -1;
     float albedos[MAX_BOUNCES];
     vec4 baseColours[MAX_BOUNCES];
     vec4 colours[MAX_BOUNCES];
 
-    for(int i = 0; i <= MAX_BOUNCES; i++)
-    {
-        //Intersection information
+    for(int i = 0; i <= MAX_BOUNCES; i++) {
         vec3 closestIntersection = vec3(10000000000.0);
         bool intersectsAny = false;
         vec4 baseColour = vec4(1.0);
         float albedo = 0;
         vec3 normal = vec3(1.0);
 
-        //Primitive information
         Primitive triangle;
-
-        //For each primitive
-        for(int j = 0; j < numIndices; j += 3)
-        {
-            //Get primitive info
+        for(int j = 0; j < numIndices; j += 3) {
             getPrimitive(j, triangle);
-
-            //Checks for intersection
-            intersectRayTriangle(ray, triangle);
-
-            //If this is the closest intersection, then update values
-            if (triangle.hitInfo.didHit && length(triangle.hitInfo.position) < length(closestIntersection))
-            {
+            testRayPrimitiveIntersection(ray, triangle);
+            if (triangle.intersection.exists && length(triangle.intersection.position) < length(closestIntersection)) {
                 intersectsAny = true;
-                closestIntersection = triangle.hitInfo.position;
+                closestIntersection = triangle.intersection.position;
 
-                vec3 barycentricCoords = barycentric(triangle);
+                vec3 barycentricCoords = calculateBarycentricCoordinates(triangle);
                 albedo = interpolateAlbedo(barycentricCoords, triangle);
                 normal = calculateNormal(triangle);
                 baseColour = interpolateColour(barycentricCoords, triangle);
             }
         }
 
-        //Enter the intersecting surface info into arrays
         bounces = i;
-
         albedos[i] = albedo;
         baseColours[i] = baseColour;
 
-        //Update ray information for following bounces
         ray.direction = normalize(reflect(ray.direction, normal));
         ray.origin = closestIntersection + normal * 0.00001;
-
-
-        //If the ray didnt hit a surface, then break the loop
-        if(!intersectsAny)
-        {
+        if(!intersectsAny) {
             break;
         }
     }
 
-    //Calculate the colour of the pixel based on the full reflection data
     colours[bounces] = baseColours[bounces];
-
-    for(int i = bounces - 1; i >= 0; i--)
-    {
+    for(int i = bounces - 1; i >= 0; i--) {
         colours[i] = albedos[i] * colours[i + 1] + (1 - albedos[i]) * baseColours[i];
     }
 
@@ -240,15 +188,11 @@ void rayTrace(out Ray ray)
 
 void main()
 {
-    // Initialise ray properties
     Ray ray;
     ray.origin = vec3(0.0);
     ray.direction = normalize(vec3(screen.x, screen.y, 1.0));
     ray.colour = vec4(1.0);
 
-    // Calculate pixel colour
     rayTrace(ray);
-
-    // Draw colour
 	FragColor = ray.colour;
 }
