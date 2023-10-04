@@ -148,7 +148,7 @@ void rayTrace(out Ray ray) {
     for(int i = 0; i <= MAX_BOUNCES; i++) {
         vec3 closestIntersection = vec3(10000000000.0);
         bool intersectsAny = false;
-        vec4 baseColour = vec4(1.0);
+        vec4 baseColour = vec4(0.0);
         float albedo = 0;
         vec3 normal = vec3(1.0);
 

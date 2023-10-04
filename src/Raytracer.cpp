@@ -64,12 +64,11 @@ int main()
 
         // Initialise scene
         Scene scene;
-        scene.pushCube(glm::vec4(-2.0f, 6.0f, 3.0f, 1.0f), glm::vec4(0.8, 0.4, 0.2, 1.0), 2.0f, 0.3f, 0.0f);
-        scene.pushCube(glm::vec4(0.5f, 6.0f, -5.0f, 1.0f), glm::vec4(0.2, 0.7, 0.5, 1.0), 2.0f, 0.4f, 0.0f);
-        scene.pushCube(glm::vec4(3.0f, 9.0f, 4.0f, 1.0f), glm::vec4(0.7, 0.1, 0.3, 1.0), 6.0f, 0.2f, 0.0f);
-        scene.pushCube(glm::vec4(1.0f, 8.0f, -3.0f, 1.0f), glm::vec4(0.5, 0.8, 0.2, 1.0), 4.0f, 0.3f, 0.0f);
-        scene.pushCube(glm::vec4(0.0f, -1000.0f, 0.0f, 1.0f), glm::vec4(0.4, 0.4, 0.4, 1.0), 2000.0f, 0.1f, 0.0f);
-        scene.pushCube(glm::vec4(2020.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.95, 1.0, 0.95, 1.0), 4000.0f, 0.9f, 0.0f);
+        scene.pushCube(glm::vec4(-5.0f, 5.0f, 3.0f, 1.0f), glm::vec4(0.8, 0.4, 0.2, 1.0), 2.0f, 0.3f, 0.0f);
+        scene.pushCube(glm::vec4(-2.5f, 5.0f, -7.0f, 1.0f), glm::vec4(0.2, 0.7, 0.5, 1.0), 2.0f, 0.4f, 0.0f);
+        scene.pushCube(glm::vec4(1.0f, 7.0f, 4.0f, 1.0f), glm::vec4(0.7, 0.1, 0.3, 1.0), 6.0f, 0.2f, 0.0f);
+        scene.pushCube(glm::vec4(-1.0f, 6.0f, -3.0f, 1.0f), glm::vec4(0.5, 0.8, 0.2, 1.0), 4.0f, 0.3f, 0.0f);
+        scene.pushCube(glm::vec4(0.0f, -1001.0f, 0.0f, 1.0f), glm::vec4(0.1, 0.1, 0.1, 1.0), 2000.0f, 0.1f, 0.0f);
 
         scene.worldSpace.light = glm::vec4(0.0f, 50.0f, 0.0f, 1.0f);
 
