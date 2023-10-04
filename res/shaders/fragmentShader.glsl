@@ -6,6 +6,7 @@ out vec4 FragColor;
 uniform int indices[1200];
 uniform int numVertices;
 uniform int numIndices;
+uniform vec4 lightPos;
 uniform sampler2D textureSampler;
 
 #define MAX_BOUNCES 10
@@ -27,6 +28,7 @@ layout(std140, binding = 0) buffer VertexBuffer {
 struct Intersection {
     bool exists;
     vec3 position;
+    int primitiveIndex;
 };
 
 struct Primitive {
@@ -146,8 +148,9 @@ void rayTrace(out Ray ray) {
     vec4 colours[MAX_BOUNCES];
 
     for(int i = 0; i <= MAX_BOUNCES; i++) {
-        vec3 closestIntersection = vec3(10000000000.0);
-        bool intersectsAny = false;
+        Intersection closestIntersection;
+        closestIntersection.exists = false;
+        closestIntersection.position = vec3(9999999.0);
         vec4 baseColour = vec4(0.0);
         float albedo = 0;
         vec3 normal = vec3(1.0);
@@ -156,24 +159,49 @@ void rayTrace(out Ray ray) {
         for(int j = 0; j < numIndices; j += 3) {
             getPrimitive(j, triangle);
             testRayPrimitiveIntersection(ray, triangle);
-            if (triangle.intersection.exists && length(triangle.intersection.position) < length(closestIntersection)) {
-                intersectsAny = true;
-                closestIntersection = triangle.intersection.position;
-
-                vec3 barycentricCoords = calculateBarycentricCoordinates(triangle);
-                albedo = interpolateAlbedo(barycentricCoords, triangle);
-                normal = calculateNormal(triangle);
-                baseColour = interpolateColour(barycentricCoords, triangle);
+            if (triangle.intersection.exists && length(triangle.intersection.position) < length(closestIntersection.position)) {
+                closestIntersection.exists = true;
+                closestIntersection.position = triangle.intersection.position;
+                closestIntersection.primitiveIndex = j;
             }
         }
 
-        bounces = i;
-        albedos[i] = albedo;
-        baseColours[i] = baseColour;
+        if(closestIntersection.exists) {
+            getPrimitive(closestIntersection.primitiveIndex, triangle);
+            vec3 barycentricCoords = calculateBarycentricCoordinates(triangle);
+            albedo = interpolateAlbedo(barycentricCoords, triangle);
+            normal = calculateNormal(triangle);
+            baseColour = interpolateColour(barycentricCoords, triangle);
 
-        ray.direction = normalize(reflect(ray.direction, normal));
-        ray.origin = closestIntersection + normal * 0.00001;
-        if(!intersectsAny) {
+            vec3 lightDir = normalize(closestIntersection.position - lightPos.xyz);
+            vec3 viewDir = normalize(closestIntersection.position - ray.origin);
+
+            float ambientStrength = 1.0;
+            float diffuseStrength = 0.5;
+            float specularStrength = 0.3;
+            float shininess = 32.0;
+
+            vec3 ambientColor = vec3(0.1, 0.1, 0.1);
+            vec3 lightColor = vec3(1.0, 1.0, 1.0);
+
+            float diff = max(dot(normal, lightDir), 0.0);
+            vec3 reflectDir = reflect(-lightDir, normal);
+            float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+
+            vec3 ambient = ambientStrength * ambientColor;
+            vec3 diffuse = diffuseStrength * diff * lightColor;
+            vec3 specular = specularStrength * spec * lightColor;
+
+            vec3 finalColor = baseColour.rgb * (ambient + diffuse + specular);
+
+            bounces = i;
+            albedos[i] = albedo;
+            baseColours[i] = vec4(finalColor, 1.0);
+
+            ray.direction = normalize(reflect(ray.direction, normal));
+            ray.origin = closestIntersection.position + normal * 0.00001;
+        }
+        else {
             break;
         }
     }
@@ -194,5 +222,6 @@ void main()
     ray.colour = vec4(1.0);
 
     rayTrace(ray);
+    
 	FragColor = ray.colour;
 }

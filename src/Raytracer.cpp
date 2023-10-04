@@ -70,7 +70,7 @@ int main()
         scene.pushCube(glm::vec4(-1.0f, 6.0f, -3.0f, 1.0f), glm::vec4(0.5, 0.8, 0.2, 1.0), 4.0f, 0.3f, 0.0f);
         scene.pushCube(glm::vec4(0.0f, -1001.0f, 0.0f, 1.0f), glm::vec4(0.1, 0.1, 0.1, 1.0), 2000.0f, 0.1f, 0.0f);
 
-        scene.worldSpace.light = glm::vec4(0.0f, 50.0f, 0.0f, 1.0f);
+        scene.worldSpace.light = glm::vec4(0.0f, 15.0f, 0.0f, 1.0f);
 
         //Initialise Texture
         Texture texture("../res/textures/squares.png");
@@ -115,12 +115,13 @@ int main()
             view = camera.getViewMatrix();
 
             scene.applyMvp(model, view, projection);
+            //std::cout << glm::to_string(scene.cameraSpace.light) << std::endl;
 
             shaderProgram.bind();
             shaderProgram.setIntArray("indices", &scene.indices[0], (int)scene.indices.size());
             shaderProgram.setInt("numVertices", (int)scene.cameraSpace.vertices.size());
             shaderProgram.setInt("numIndices", (int)scene.indices.size());
-            shaderProgram.setVec4("light", scene.cameraSpace.light);
+            shaderProgram.setVec4("lightPos", scene.cameraSpace.light);
 
             glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Vertex) * (int)scene.cameraSpace.vertices.size(), &scene.cameraSpace.vertices[0], GL_STATIC_DRAW);
             glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
