@@ -9,7 +9,7 @@ uniform int numIndices;
 uniform vec4 lightPos;
 uniform sampler2D textureSampler;
 
-#define MAX_BOUNCES 10
+#define MAX_BOUNCES 5
 
 const float PI = 3.141592653589793238;
 
@@ -33,7 +33,6 @@ struct Intersection {
 
 struct Primitive {
     Intersection intersection;
-    vec3 normal;
     Vertex vertices[3];
 };
 
@@ -41,12 +40,14 @@ struct Ray {
     vec3 origin;
     vec3 direction;
     vec4 colour;
+    float len;
 };
 
 void getPrimitive(  int i, out Primitive triangle) {
     triangle.vertices[0] = vertices[indices[i]];
     triangle.vertices[1] = vertices[indices[i+1]];
     triangle.vertices[2] = vertices[indices[i+2]];
+    triangle.intersection.exists = false;
 }
 
 vec3 calculateNormal(Primitive triangle) {
@@ -54,6 +55,13 @@ vec3 calculateNormal(Primitive triangle) {
     vec3 edge2 = vec3(triangle.vertices[2].position - triangle.vertices[0].position);
     vec3 normal = normalize(cross(edge1, edge2));
     return normal;
+}
+
+float calculateNormalSign(vec3 normal, vec3 rayDir) {
+    if(dot(normal, rayDir) < 0) {
+        return 1.0;
+    }
+    return -1.0;
 }
 
 vec3 calculateBarycentricCoordinates(Primitive triangle) {
@@ -132,13 +140,40 @@ void testRayPrimitiveIntersection(Ray ray, out Primitive triangle) {
     }
 
     float t = f * dot(edge2, q);
-    if (t > EPSILON) {
-        triangle.intersection.position = ray.direction * t;
+    if (t > EPSILON && t <= ray.len) {
+        triangle.intersection.position = ray.origin + ray.direction * t;
         triangle.intersection.exists = true;
         return;
     }
 
     triangle.intersection.exists = false;
+}
+
+void testIntersections(Ray ray, out Intersection closestIntersection) {
+    closestIntersection.exists = false;
+    closestIntersection.position = vec3(9999999.0);
+
+    Primitive triangle;
+    for(int i = 0; i < numIndices; i += 3) {
+        getPrimitive(i, triangle);
+        testRayPrimitiveIntersection(ray, triangle);
+        if (triangle.intersection.exists && length(triangle.intersection.position) < length(closestIntersection.position)) {
+            closestIntersection.exists = true;
+            closestIntersection.position = triangle.intersection.position;
+            closestIntersection.primitiveIndex = i;
+        }
+    }
+}
+
+bool isRayNearLight(Ray ray) {
+    vec3 rayToLight = lightPos.xyz - ray.origin;
+    float t = dot(rayToLight, ray.direction);
+    if (t < 0){
+        return false;
+    }
+    vec3 closestPointOnRay = ray.origin + t * ray.direction;
+    float distanceToLight = length(closestPointOnRay - lightPos.xyz);
+    return distanceToLight < 0.2;
 }
 
 void rayTrace(out Ray ray) {
@@ -147,51 +182,53 @@ void rayTrace(out Ray ray) {
     vec4 baseColours[MAX_BOUNCES];
     vec4 colours[MAX_BOUNCES];
 
+    if(isRayNearLight(ray)){
+        ray.colour = vec4(0.5, 0.5, 0.0, 1.0);
+        return;
+    }
+
     for(int i = 0; i <= MAX_BOUNCES; i++) {
-        Intersection closestIntersection;
-        closestIntersection.exists = false;
-        closestIntersection.position = vec3(9999999.0);
         vec4 baseColour = vec4(0.0);
         float albedo = 0;
         vec3 normal = vec3(1.0);
 
-        Primitive triangle;
-        for(int j = 0; j < numIndices; j += 3) {
-            getPrimitive(j, triangle);
-            testRayPrimitiveIntersection(ray, triangle);
-            if (triangle.intersection.exists && length(triangle.intersection.position) < length(closestIntersection.position)) {
-                closestIntersection.exists = true;
-                closestIntersection.position = triangle.intersection.position;
-                closestIntersection.primitiveIndex = j;
-            }
-        }
+        Intersection cameraClosestIntersection;
+        testIntersections(ray, cameraClosestIntersection);
 
-        if(closestIntersection.exists) {
-            getPrimitive(closestIntersection.primitiveIndex, triangle);
+        if(cameraClosestIntersection.exists) {
+            Primitive triangle;
+            getPrimitive(cameraClosestIntersection.primitiveIndex, triangle);
             vec3 barycentricCoords = calculateBarycentricCoordinates(triangle);
             albedo = interpolateAlbedo(barycentricCoords, triangle);
             normal = calculateNormal(triangle);
+            normal = normal * calculateNormalSign(normal, ray.direction);
             baseColour = interpolateColour(barycentricCoords, triangle);
 
-            vec3 lightDir = normalize(closestIntersection.position - lightPos.xyz);
-            vec3 viewDir = normalize(closestIntersection.position - ray.origin);
+            vec3 lightDir = normalize(cameraClosestIntersection.position - lightPos.xyz);
+            vec3 viewDir = normalize(cameraClosestIntersection.position - ray.origin);
 
-            float ambientStrength = 1.0;
+            float ambientStrength = 0.05;
             float diffuseStrength = 0.5;
-            float specularStrength = 0.3;
-            float shininess = 32.0;
+            float specularStrength = 0.45;
+            float shininess = 100.0;
 
-            vec3 ambientColor = vec3(0.1, 0.1, 0.1);
-            vec3 lightColor = vec3(1.0, 1.0, 1.0);
+            vec3 ambientColor = vec3(1.0);
+            vec3 lightColor = vec3(1.0);
 
-            float diff = max(dot(normal, lightDir), 0.0);
+            float diff = max(abs(dot(normal, lightDir)), 0.0);
             vec3 reflectDir = reflect(-lightDir, normal);
             float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
 
             vec3 ambient = ambientStrength * ambientColor;
-            vec3 diffuse = diffuseStrength * diff * lightColor;
-            vec3 specular = specularStrength * spec * lightColor;
+            vec3 diffuse = vec3(0.0);
+            vec3 specular = vec3(0.0);
+            
+            float lightStrength = 700.0;
+            float lightDistance = length(lightPos.xyz - cameraClosestIntersection.position);
+            float lightDropOff = lightStrength / pow(lightDistance, 2);
 
+            diffuse = diffuseStrength * diff * lightColor * lightDropOff;
+            specular = specularStrength * spec * lightColor * lightDropOff;
             vec3 finalColor = baseColour.rgb * (ambient + diffuse + specular);
 
             bounces = i;
@@ -199,7 +236,7 @@ void rayTrace(out Ray ray) {
             baseColours[i] = vec4(finalColor, 1.0);
 
             ray.direction = normalize(reflect(ray.direction, normal));
-            ray.origin = closestIntersection.position + normal * 0.00001;
+            ray.origin = cameraClosestIntersection.position + normal * 0.00001;
         }
         else {
             break;
@@ -212,6 +249,8 @@ void rayTrace(out Ray ray) {
     }
 
     ray.colour = colours[0];
+
+
 }
 
 void main()
@@ -220,6 +259,7 @@ void main()
     ray.origin = vec3(0.0);
     ray.direction = normalize(vec3(screen.x, screen.y, 1.0));
     ray.colour = vec4(1.0);
+    ray.len = 99999999;
 
     rayTrace(ray);
     

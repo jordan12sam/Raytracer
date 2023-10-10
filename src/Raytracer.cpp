@@ -64,14 +64,14 @@ int main()
 
         // Initialise scene
         Scene scene;
-        scene.pushCube(glm::vec4(5.0f, 5.0f, 3.0f, 1.0f), glm::vec4(0.8, 0.4, 0.2, 1.0), 2.0f, 0.3f, 0.0f);
-        scene.pushCube(glm::vec4(7.5f, 5.0f, -7.0f, 1.0f), glm::vec4(0.2, 0.7, 0.5, 1.0), 2.0f, 0.4f, 0.0f);
-        scene.pushCube(glm::vec4(11.0f, 7.0f, 4.0f, 1.0f), glm::vec4(0.7, 0.1, 0.3, 1.0), 6.0f, 0.6f, 0.0f);
-        scene.pushCube(glm::vec4(9.0f, 6.0f, -3.0f, 1.0f), glm::vec4(0.5, 0.8, 0.2, 1.0), 4.0f, 0.3f, 0.0f);
-        scene.pushCube(glm::vec4(-30.0f, 6.0f, 0.0f, 1.0f), glm::vec4(0.2, 0.8, 0.8, 1.0), 20.0f, 0.8f, 0.0f);
+        scene.pushCube(glm::vec4(5.0f, 5.0f, 3.0f, 1.0f), glm::vec4(0.8, 0.4, 0.2, 1.0), 2.0f, 0.0f, 0.0f);
+        scene.pushCube(glm::vec4(7.5f, 5.0f, -7.0f, 1.0f), glm::vec4(0.2, 0.7, 0.5, 1.0), 2.0f, 0.0f, 0.0f);
+        scene.pushCube(glm::vec4(11.0f, 7.0f, 4.0f, 1.0f), glm::vec4(0.7, 0.1, 0.3, 1.0), 6.0f, 0.0f, 0.0f);
+        scene.pushCube(glm::vec4(9.0f, 6.0f, -3.0f, 1.0f), glm::vec4(0.5, 0.8, 0.2, 1.0), 4.0f, 0.0f, 0.0f);
+        scene.pushCube(glm::vec4(-30.0f, 10.0f, 0.0f, 1.0f), glm::vec4(0.2, 0.8, 0.8, 1.0), 20.0f, 0.0f, 0.0f);
         scene.pushCube(glm::vec4(0.0f, -1001.0f, 0.0f, 1.0f), glm::vec4(1.0, 1.0, 1.0, 1.0), 2000.0f, 0.0f, 0.0f);
 
-        scene.worldSpace.light = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        scene.worldSpace.light = glm::vec4(-5.0f, 20.0f, 0.0f, 1.0f);
 
         //Initialise Texture
         Texture texture("../res/textures/squares.png");
