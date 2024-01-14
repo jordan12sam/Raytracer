@@ -74,12 +74,12 @@ int main()
         scene.worldSpace.light = glm::vec4(-5.0f, 20.0f, 0.0f, 1.0f);
 
         //Initialise Texture
-        Texture texture("../res/textures/squares.png");
+        Texture texture("./res/textures/squares.png");
         texture.bind();
 
         // Define shaders
-        Shader vertexShader("../res/shaders/vertexShader.glsl", GL_VERTEX_SHADER);
-        Shader fragmentShader("../res/shaders/fragmentShader.glsl", GL_FRAGMENT_SHADER);
+        Shader vertexShader("./res/shaders/vertexShader.glsl", GL_VERTEX_SHADER);
+        Shader fragmentShader("./res/shaders/fragmentShader.glsl", GL_FRAGMENT_SHADER);
         ShaderProgram shaderProgram;
         shaderProgram.attach(vertexShader);
         shaderProgram.attach(fragmentShader);
